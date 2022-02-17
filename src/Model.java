@@ -12,6 +12,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import Level.Level;
 import Level.LevelManager;
 import util.GameObject;
+import util.Item;
 import util.Point3f;
 import util.Vector3f;
 
@@ -55,6 +56,7 @@ public class Model {
 	private LevelManager levelManager = new LevelManager();
 
 	private  CopyOnWriteArrayList<GameObject> EnemiesList  = new CopyOnWriteArrayList<GameObject>();
+	private  CopyOnWriteArrayList<Item> ItemsList  = new CopyOnWriteArrayList<Item>();
 	private  CopyOnWriteArrayList<GameObject> BulletList  = new CopyOnWriteArrayList<GameObject>();
     private  CopyOnWriteArrayList<GameObject> PlayerList  = new CopyOnWriteArrayList<GameObject>();
 	private CopyOnWriteArrayList<GameObject> CollisionList  = new CopyOnWriteArrayList<GameObject>();
@@ -71,14 +73,24 @@ public class Model {
 
 	private Level currentLevel;
 
+	private int iFrames;
+
 	public Model() {
 		//Create Player
-        PlayerOne = new GameObject("gfx/npc_test.png",150,150,new Point3f(500,500,0));
-        PlayerList.add(PlayerOne);
+		PlayerOne = new GameObject("gfx/character.png", 100, 100, new Point3f(500, 500, 0));
+		PlayerList.add(PlayerOne);
 		paused = false;
 		twoPlayer = false;
 		currentLevel = levelManager.getCurrentLevel();
 		CollisionList = currentLevel.getCollisions();
+		iFrames = 0;
+
+		//0, 48 defines the heart Item
+		Item item;
+		for (int i = 0; i < 5; i++){
+			item = new Item("gfx/objects.png", 100, 100, 0, 48, 4, new Point3f(((float) Math.random() * 4000), ((float) Math.random() * 4000), 0));
+			ItemsList.add(item);
+		}
 
 		try {
 			clip = AudioSystem.getClip();
@@ -104,18 +116,23 @@ public class Model {
 	}
 
 	private void gameLogic() {
+
+		if(PlayerOne.isDead())
+			System.out.println("Game Over");
+
+		if(iFrames > 0)
+			iFrames--;
 		
 		if(!paused) {
 			// this is a way to increment across the array list data structure
 			//see if they hit anything
 			// using enhanced for-loop style as it makes it alot easier both code wise and reading wise too
-			for (GameObject temp : EnemiesList) {
-				for (GameObject Bullet : BulletList) {
-					if (Math.abs(temp.getCentre().getX() - Bullet.getCentre().getX()) < temp.getWidth()
-							&& Math.abs(temp.getCentre().getY() - Bullet.getCentre().getY()) < temp.getHeight()) {
-						EnemiesList.remove(temp);
-						BulletList.remove(Bullet);
-						Score++;
+			for (GameObject temp : BulletList) {
+				for (GameObject enemy : EnemiesList) {
+					if (Math.abs(temp.getCentre().getX() - enemy.getCentre().getX()) < temp.getWidth()
+							&& Math.abs(temp.getCentre().getY() - enemy.getCentre().getY()) < temp.getHeight()) {
+						EnemiesList.remove(enemy);
+						BulletList.remove(temp);
 					}
 				}
 			}
@@ -123,10 +140,25 @@ public class Model {
 			for (GameObject temp : EnemiesList) {
 			    for (GameObject players : PlayerList) {
                     if (Math.abs(temp.getCentre().getX() - players.getCentre().getX()) < temp.getWidth()
-                            && Math.abs(temp.getCentre().getY() - players.getCentre().getY()) < temp.getHeight()) {
-                        //System.out.println("Player collided with an enemy and died");
+                            && Math.abs(temp.getCentre().getY() - players.getCentre().getY()) < temp.getHeight()
+							&& iFrames == 0) {
+                        players.reduceHealth(1);
+                        iFrames = 60;
                     }
                 }
+			}
+
+			for (Item temp : ItemsList) {
+				for (GameObject players : PlayerList) {
+					if (Math.abs(temp.getCentre().getX() - players.getCentre().getX()) < temp.getWidth()
+							&& Math.abs(temp.getCentre().getY() - players.getCentre().getY()) < temp.getHeight()) {
+						String reaction = temp.action(players);
+						if(reaction.equals("Delete")) {
+							ItemsList.remove(temp);
+							Score++;
+						}
+					}
+				}
 			}
 
 			for (GameObject temp : CollisionList) {
@@ -180,11 +212,11 @@ public class Model {
 				temp.getCentre().ApplyVector(new Vector3f(x*speed, y*speed, 0));
 			}
 
-			/*if (EnemiesList.size() < 3) {
+			if (EnemiesList.size() < 3) {
 				while (EnemiesList.size() < 3) {
 					EnemiesList.add(new GameObject("gfx/slime_monster.png", 50, 50, new Point3f(((float) Math.random() * 1000), ((float) Math.random() * 1000), 0)));
 				}
-			}*/
+			}
 		}
 	}
 
@@ -194,7 +226,7 @@ public class Model {
 		if(!paused) {
 			for (GameObject temp : BulletList) {
 				//check to move them
-				/*
+
 				if (temp.getDirection() == "up")
 					temp.getCentre().ApplyVector(new Vector3f(0, 6, 0));
 				else if (temp.getDirection() == "right")
@@ -210,8 +242,8 @@ public class Model {
 				float y = temp.getCentre().getY();
 				float x = temp.getCentre().getX();
 				if (y <= 0 || y >= size.getHeight() || x <= 0 || x >= size.getWidth()) {
-					BulletList.remove(temp);
-				}*/
+					//BulletList.remove(temp);
+				}
 			}
 		}
 	}
@@ -245,7 +277,8 @@ public class Model {
 			}
 
 			if (Controller.getInstance().isKeySpacePressed()) {
-				CreateBullet(0);
+				if(!PlayerOne.isActing())
+					useItem();
 				Controller.getInstance().setKeySpacePressed(false);
 			}
 
@@ -288,6 +321,22 @@ public class Model {
 		}
 	}
 
+	private void useItem(){
+		//Add code so that the player is capable of changing Item and then the player item menu whatever
+		//swordAttack();
+		arrowAttack();
+	}
+
+	//Item Use Methods
+	private void swordAttack(){
+		PlayerOne.setActing(true);
+	}
+
+	private void arrowAttack(){
+		CreateBullet(1);
+		PlayerOne.setActing(true);
+	}
+
 	private void togglePauseMenu(boolean visible){
 	}
 
@@ -313,7 +362,7 @@ public class Model {
 	}
 
 	private void CreateBullet(int n) {
-		BulletList.add(new GameObject("res/Bullet.png",150,150,new Point3f(PlayerList.get(n).getCentre().getX(),PlayerList.get(n).getCentre().getY(),0.0f),PlayerList.get(n).getDirection()));
+		BulletList.add(new GameObject("res/Bullet.png",50,100,new Point3f(PlayerOne.getCentre().getX()+PlayerOne.getWidth()/2 - 25,PlayerOne.getCentre().getY() + PlayerOne.getHeight()/2 - 50,0.0f),PlayerList.get(0).getDirection()));
 	}
 
     public CopyOnWriteArrayList<GameObject> getPlayers() {
@@ -322,6 +371,10 @@ public class Model {
 
 	public CopyOnWriteArrayList<GameObject> getEnemies() {
 		return EnemiesList;
+	}
+
+	public CopyOnWriteArrayList<Item> getItems() {
+		return ItemsList;
 	}
 	
 	public CopyOnWriteArrayList<GameObject> getBullets() {

@@ -1,4 +1,7 @@
 package util;
+
+import java.awt.*;
+
 /*
  * Created by Abraham Campbell on 15/01/2020.
  *   Copyright (c) 2020  Abraham Campbell
@@ -25,13 +28,18 @@ SOFTWARE.
  */ 
 public class GameObject {
 	
-	private Point3f centre= new Point3f(0,0,0);			// Centre of object, using 3D as objects may be scaled  
+	protected Point3f centre= new Point3f(0,0,0);			// Centre of object, using 3D as objects may be scaled
 	private int width=10;
 	private int height=10;
 	private boolean hasTextured=false;
 	private String textureLocation; 
 	private String blanktexture="res/blankSprite.png";
-	private String direction;
+	protected String direction;
+	private boolean acting;
+	private int maxHealth = 5;
+	private int health = 5;
+	private boolean isDead=false;
+	protected Image image;
 	
 	public GameObject() {  
 		
@@ -87,6 +95,49 @@ public class GameObject {
 
 	public void setDirection(String direction) {
 		this.direction = direction;
+	}
+
+	public boolean isActing() {
+		return acting;
+	}
+
+	public void setActing(boolean acting) {
+		this.acting = acting;
+	}
+
+	public void reduceHealth(int n){
+		health -= n;
+		if(health <= 0){
+			health = 0;
+			isDead = true;
+		}else if(health >= maxHealth)
+			health = maxHealth;
+
+		System.out.println("New Health: "+ health);
+	}
+
+
+	public int getHealth(){
+		return this.health;
+	}
+
+	public int getMaxHealth(){
+		return this.maxHealth;
+	}
+
+	public boolean isAtMaxHealth(){
+		if(health == maxHealth)
+			return true;
+		else
+			return false;
+	}
+
+	public boolean isDead(){
+		return isDead;
+	}
+
+	public Image getImage(){
+		return this.image;
 	}
 }
 

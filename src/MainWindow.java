@@ -40,7 +40,7 @@ SOFTWARE.
 
 public class MainWindow {
 	 private static  JFrame frame = new JFrame("Game");   // Change to the name of your game 
-	 private static   Model gameworld= new Model();
+	 private static   Model gameworld = new Model();
 	 private static   Viewer canvas = new  Viewer( gameworld);
 	 private KeyListener Controller =new Controller()  ; 
 	 private static   int TargetFPS = 100;
@@ -75,7 +75,7 @@ public class MainWindow {
 					canvas.addKeyListener(Controller);    //adding the controller to the Canvas
 					canvas.requestFocusInWindow();   // making sure that the Canvas is in focus so keyboard input will be taking in .
 					startGame = true;
-					gameworld.changeLevel(2);
+					gameworld.changeLevel(2 );
 				}
 			});
 

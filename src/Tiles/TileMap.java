@@ -6,8 +6,10 @@ import org.w3c.dom.NodeList;
 import util.GameObject;
 import util.Point3f;
 
+import javax.imageio.ImageIO;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import java.awt.*;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,7 +22,7 @@ public class TileMap {
     private int mapWidth;
     private int mapHeight;
 
-    File spriteSheet;
+    Image spriteSheet;
 
     private int spriteSheetWidth;
     private int spriteSheetHeight;
@@ -39,9 +41,13 @@ public class TileMap {
         }
 
         tileSize = 16;
-        scale = 9;
+        scale = 5;
 
-        this.spriteSheet = new File("gfx/"+spriteSheet+".png");
+        try {
+            this.spriteSheet = ImageIO.read(new File("gfx/" + spriteSheet + ".png"));
+        }catch (Exception e){
+
+        }
 
         spriteSheetWidth = 40;
         spriteSheetHeight = 40;
@@ -55,7 +61,7 @@ public class TileMap {
         return Integer.parseInt(visualLayer[x*mapWidth + y]);
     }
 
-    public File getSpriteSheet(){
+    public Image getSpriteSheet(){
         return spriteSheet;
     }
 
