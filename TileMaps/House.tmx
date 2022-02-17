@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.5" tiledversion="1.7.2" orientation="orthogonal" renderorder="right-down" width="10" height="10" tilewidth="16" tileheight="16" infinite="0" nextlayerid="4" nextobjectid="2">
- <tileset firstgid="1" source="Inner.tsx"/>
+<map version="1.5" tiledversion="1.7.2" orientation="orthogonal" renderorder="right-down" width="10" height="10" tilewidth="16" tileheight="16" infinite="0" nextlayerid="6" nextobjectid="2">
+ <tileset firstgid="1" source="../../Tile_Map_Save/Inner.tsx"/>
  <layer id="1" name="Base" width="10" height="10">
   <data encoding="csv">
 41,41,41,41,41,41,41,41,41,41,
@@ -29,11 +29,26 @@
 0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
- <objectgroup id="3" name="Object">
-  <object id="1" type="Doorway" x="64.1902" y="144.141" width="32.0951" height="15.6177">
+ <layer id="4" name="Meta" width="10" height="10">
+  <data encoding="csv">
+0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0
+</data>
+ </layer>
+ <objectgroup id="3" name="Path">
+  <object id="1" type="Field" x="64.1902" y="144.141" width="32.0951" height="15.6177">
    <properties>
     <property name="Destination" value="Outside_House"/>
    </properties>
   </object>
  </objectgroup>
+ <objectgroup id="5" name="Collisions"/>
 </map>

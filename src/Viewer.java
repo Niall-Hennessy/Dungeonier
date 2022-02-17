@@ -103,7 +103,7 @@ public class Viewer extends JPanel {
 
 		gameworld.getCollisionList().forEach((temp) ->
 		{
-			drawCollisions((int) temp.getCentre().getX(), (int) temp.getCentre().getY(), (int) temp.getWidth(), (int) temp.getHeight(), temp.getTexture(),g, temp.getDirection());
+			//drawCollisions((int) temp.getCentre().getX(), (int) temp.getCentre().getY(), (int) temp.getWidth(), (int) temp.getHeight(), temp.getTexture(),g, temp.getDirection());
 		});
 	}
 	
