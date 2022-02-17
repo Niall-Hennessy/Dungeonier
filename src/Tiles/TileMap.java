@@ -3,6 +3,7 @@ package Tiles;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import util.Door;
 import util.GameObject;
 import util.Point3f;
 
@@ -27,9 +28,11 @@ public class TileMap {
     private int spriteSheetWidth;
     private int spriteSheetHeight;
 
+    private String[] metaLayer;
     private String[] visualLayer;
     private String[] backLayer;
 
+    CopyOnWriteArrayList<Door> doors = new CopyOnWriteArrayList<Door>();
     CopyOnWriteArrayList<GameObject> collisions = new CopyOnWriteArrayList<GameObject>();
 
     public TileMap(String mapName, String spriteSheet){
@@ -52,6 +55,8 @@ public class TileMap {
         spriteSheetWidth = 40;
         spriteSheetHeight = 40;
     }
+
+    public int getMetaTile(int x, int y){return Integer.parseInt(metaLayer[x*mapWidth + y]);}
 
     public int getBackTile(int x, int y){
         return Integer.parseInt(backLayer[x*mapWidth + y]);
@@ -97,6 +102,9 @@ public class TileMap {
         return logicalGrid;
     }*/
 
+    public CopyOnWriteArrayList<Door> getDoors() {
+        return doors;
+    }
     public CopyOnWriteArrayList<GameObject> getCollisions() {
         return collisions;
     }
@@ -115,8 +123,9 @@ public class TileMap {
 
             int n = backLayer2.length;
 
-            backLayer = Arrays.copyOfRange(backLayer2, 0, (n + 1)/2);
-            visualLayer = Arrays.copyOfRange(backLayer2, (n + 1)/2, n);
+            backLayer = Arrays.copyOfRange(backLayer2, 0, (n + 1)/3);
+            visualLayer = Arrays.copyOfRange(backLayer2, (n + 1)/3, 2*(n + 1)/3);
+            metaLayer = Arrays.copyOfRange(backLayer2, 2*(n + 1)/3, n);
 
             mapWidth = (int)Math.sqrt(backLayer.length);
             mapHeight = mapWidth;
@@ -126,16 +135,48 @@ public class TileMap {
             int doorPos_x = 0;
             int doorPos_y = 0;
 
-            if(document.getChildNodes().item(0).getChildNodes().item(7) != null && mapName.equals("Field")) {
-                Node temp = document.getChildNodes().item(0).getChildNodes().item(7).getChildNodes().item(1);
+            int item=9;
+            if(document.getChildNodes().item(0).getChildNodes().item(item) != null && mapName.equals("Town")) {
 
-                doorHeight_y = (int)Float.parseFloat(temp.getAttributes().item(0).toString().split("\"")[1]) * 9;
-                doorHeight_x = (int)Float.parseFloat(temp.getAttributes().item(3).toString().split("\"")[1]) * 9;
-                doorPos_x = (int)Float.parseFloat(temp.getAttributes().item(4).toString().split("\"")[1]) * 9;
-                doorPos_y = (int)Float.parseFloat(temp.getAttributes().item(5).toString().split("\"")[1]) * 9;
+                //System.out.println(document.getChildNodes().item(0).getChildNodes().item(item).getChildNodes().item(1).getAttributes().item(0));
+                int len = document.getChildNodes().item(0).getChildNodes().item(item).getChildNodes().getLength();
+                System.out.println(len);
+
+
+                for(int i = 1; i < len; i+=2) {
+                    System.out.println(i);
+
+                    Node temp = document.getChildNodes().item(0).getChildNodes().item(item).getChildNodes().item(i);
+
+                    doorHeight_y = (int) Float.parseFloat(temp.getAttributes().item(0).toString().split("\"")[1]) * 5;
+                    doorHeight_x = (int) Float.parseFloat(temp.getAttributes().item(3).toString().split("\"")[1]) * 5;
+                    doorPos_x = (int) Float.parseFloat(temp.getAttributes().item(4).toString().split("\"")[1]) * 5;
+                    doorPos_y = (int) Float.parseFloat(temp.getAttributes().item(5).toString().split("\"")[1]) * 5;
+                    doors.add(new Door(temp.getAttributes().item(2).toString().split("\"")[1], doorHeight_x, doorHeight_y, new Point3f(doorPos_x, doorPos_y, 0)));
+                }
             }
 
-            collisions.add(new GameObject("res/Bullet.png", doorHeight_x, doorHeight_y, new Point3f(doorPos_x, doorPos_y, 0)));
+            item=11;
+            if(document.getChildNodes().item(0).getChildNodes().item(item) != null && mapName.equals("Town")) {
+
+                System.out.println(document.getChildNodes().item(0).getChildNodes().item(item).getChildNodes().item(1).getAttributes().item(4));
+                int len = document.getChildNodes().item(0).getChildNodes().item(item).getChildNodes().getLength();
+                System.out.println(len);
+
+
+                for(int i = 1; i < len; i+=2) {
+                    System.out.println(i);
+
+                    Node temp = document.getChildNodes().item(0).getChildNodes().item(item).getChildNodes().item(i);
+
+                    doorHeight_y = (int) Float.parseFloat(temp.getAttributes().item(0).toString().split("\"")[1]) * 5;
+                    doorHeight_x = (int) Float.parseFloat(temp.getAttributes().item(2).toString().split("\"")[1]) * 5;
+                    doorPos_x = (int) Float.parseFloat(temp.getAttributes().item(3).toString().split("\"")[1]) * 5;
+                    doorPos_y = (int) Float.parseFloat(temp.getAttributes().item(4).toString().split("\"")[1]) * 5;
+                    collisions.add(new GameObject("res/Bullet.png", doorHeight_x, doorHeight_y, new Point3f(doorPos_x, doorPos_y, 0)));
+                }
+            }
+
         }catch(Exception e){
             System.out.println(e);
         }

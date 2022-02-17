@@ -2,10 +2,13 @@ package Level;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class LevelManager {
     ArrayList<Level> levels;
     private int currentLevel;
+    private HashMap<String, Integer> destinations = new HashMap<String, Integer>();
+
 
     public LevelManager() {
         levels = new ArrayList<Level>();
@@ -13,15 +16,19 @@ public class LevelManager {
 
         Level house = new Level("House", "Inner", new File("sound/Enchanted Festival Loop.wav"));
         levels.add(house);
+        destinations.put("House", 0);
 
         Level outsideHouse = new Level("Outside_House", "Overworld", new File("sound/Enchanted Festival Loop.wav"));
         levels.add(outsideHouse);
+        destinations.put("Outside_House", 1);
 
         Level field = new Level("Field", "Overworld", new File("sound/Enchanted Festival Loop.wav"));
         levels.add(field);
+        destinations.put("Field", 2);
 
         Level town = new Level("Town", "Overworld", new File("sound/Enchanted Festival Loop.wav"));
         levels.add(town);
+        destinations.put("Town", 3);
 
         //Level cave = new Level("Cave", new File("gfx/cave.png"), new File("sound/Shiny_Depths.wav"));
         //levels.add(cave);
@@ -29,6 +36,11 @@ public class LevelManager {
 
     public void changeLevel(int n){
         currentLevel = n;
+    }
+
+    public void changeLevel(String n){
+        System.out.println(n);
+        currentLevel = destinations.get(n);
     }
 
     public ArrayList<Level> getLevels() {

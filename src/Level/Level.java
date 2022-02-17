@@ -1,6 +1,7 @@
 package Level;
 
 import Tiles.TileMap;
+import util.Door;
 import util.GameObject;
 
 import java.io.File;
@@ -38,5 +39,9 @@ public class Level {
 
     public CopyOnWriteArrayList<GameObject> getCollisions() {
         return tileMap.getCollisions();
+    }
+
+    public CopyOnWriteArrayList<Door> getDoors() {
+        return tileMap.getDoors();
     }
 }

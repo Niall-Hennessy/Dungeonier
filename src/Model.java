@@ -11,10 +11,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import Level.Level;
 import Level.LevelManager;
-import util.GameObject;
-import util.Item;
-import util.Point3f;
-import util.Vector3f;
+import util.*;
 
 import javax.imageio.ImageIO;
 import javax.sound.sampled.*;
@@ -60,6 +57,7 @@ public class Model {
 	private  CopyOnWriteArrayList<GameObject> BulletList  = new CopyOnWriteArrayList<GameObject>();
     private  CopyOnWriteArrayList<GameObject> PlayerList  = new CopyOnWriteArrayList<GameObject>();
 	private CopyOnWriteArrayList<GameObject> CollisionList  = new CopyOnWriteArrayList<GameObject>();
+	private CopyOnWriteArrayList<Door> DoorList  = new CopyOnWriteArrayList<Door>();
 
 	private int Score=0;
 	private boolean paused;
@@ -161,21 +159,21 @@ public class Model {
 				}
 			}
 
-			for (GameObject temp : CollisionList) {
+			for (Door temp : DoorList) {
 				for (GameObject players : PlayerList) {
 					if (Math.abs(temp.getCentre().getX() - players.getCentre().getX()) < temp.getWidth()
 							&& Math.abs(temp.getCentre().getY() - players.getCentre().getY()) < temp.getHeight()) {
 						System.out.println(currentLevel.getLevelName());
 
 						if(currentLevel.getLevelName() != "House")
-							changeLevel(0);
+							changeLevel(temp.getDestination());
 					}
 				}
 			}
 
 			if(getScore() == 10 && !tester){
 				tester = !tester;
-				changeLevel(2);
+				//changeLevel(2);
 			}
 		}
 	}
@@ -340,11 +338,15 @@ public class Model {
 	private void togglePauseMenu(boolean visible){
 	}
 
-	public void changeLevel(int n){
+	public void changeLevel(String n){
 		levelManager.changeLevel(n);
 		currentLevel = levelManager.getCurrentLevel();
+
 		CollisionList.clear();
 		CollisionList = currentLevel.getCollisions();
+
+		DoorList.clear();
+		DoorList = currentLevel.getDoors();
 
 		PlayerOne.setCentre(new Point3f(0,0,0));
 

@@ -103,7 +103,7 @@ public class Viewer extends JPanel {
 
 		gameworld.getCollisionList().forEach((temp) ->
 		{
-			//drawCollisions((int) temp.getCentre().getX(), (int) temp.getCentre().getY(), (int) temp.getWidth(), (int) temp.getHeight(), temp.getTexture(),g, temp.getDirection());
+			drawCollisions((int) temp.getCentre().getX(), (int) temp.getCentre().getY(), (int) temp.getWidth(), (int) temp.getHeight(), temp.getTexture(),g, temp.getDirection());
 		});
 	}
 	
@@ -284,6 +284,30 @@ public class Viewer extends JPanel {
 			}
 			drawGui(finalCamera_x, finalCamera_y, temp,g);
 		});
+
+		c=0;
+		r=0;
+		for (c = 0; c < tileMap.getMapWidth(); c++) {
+			for (r = 0; r < tileMap.getMapWidth(); r++) {
+				int tile = tileMap.getMetaTile(r, c);
+				if(tile != 0) { // 0 => empty tile
+					g.drawImage(myImage, // image
+							0, // target x
+							0, // target y
+							tileSize * scale, // target width
+							tileSize * scale, // target height
+							(tile - 1) % spriteSheetWidth * tileSize, // source x
+							(tile) / spriteSheetHeight * tileSize, // source y
+							(tile - 1) % spriteSheetWidth * tileSize + tileSize, // source width
+							(tile) / spriteSheetHeight * tileSize + tileSize, // source height
+							null
+					);
+				}
+				g.translate(0,tileSize*scale);
+			}
+			g.translate(tileSize*scale, -(r*tileSize * scale));
+		}
+		g.translate(-(c*tileSize * scale), 0);
 	}
 
 	private void drawGui(int a, int b, GameObject Player, Graphics g){
