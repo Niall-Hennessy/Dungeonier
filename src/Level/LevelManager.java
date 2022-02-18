@@ -30,7 +30,7 @@ public class LevelManager {
         levels.add(town);
         destinations.put("Town", 3);
 
-        Level fireDungeon = new Level("Fire_Dungeon", "Package_Fire_Dungeon/atlas_16x", 64, 16, new File("sound/Enchanted Festival Loop.wav"));
+        Level fireDungeon = new Level("Fire_Dungeon", "Package_Fire_Dungeon/atlas_16x", 64, 16, 3, new File("sound/Enchanted Festival Loop.wav"));
         levels.add(fireDungeon);
         destinations.put("Fire_Dungeon", 4);
 

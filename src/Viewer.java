@@ -101,9 +101,9 @@ public class Viewer extends JPanel {
 		
 		//Draw Enemies
 
-		gameworld.getDoorListList().forEach((temp) ->
+		gameworld.getCollisionList().forEach((temp) ->
 		{
-			drawCollisions((int) temp.getCentre().getX(), (int) temp.getCentre().getY(), (int) temp.getWidth(), (int) temp.getHeight(), temp.getTexture(),g, temp.getDirection());
+			//drawCollisions((int) temp.getCentre().getX(), (int) temp.getCentre().getY(), (int) temp.getWidth(), (int) temp.getHeight(), temp.getTexture(),g, temp.getDirection());
 		});
 	}
 	
@@ -182,7 +182,8 @@ public class Viewer extends JPanel {
 			else
 				offset = 24;
 
-			g.drawImage(myImage, x,y, x+width, y+height, currentPositionInAnimation  , offset, currentPositionInAnimation+23, 24+offset, null);
+			g.drawRect(x,y,width,height);
+			//g.drawImage(myImage, x,y, x+width, y+height, currentPositionInAnimation  , offset, currentPositionInAnimation+23, 24+offset, null);
 
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -193,14 +194,7 @@ public class Viewer extends JPanel {
 
 	//UI SPRITE FROM https://opengameart.org/content/golden-ui
 	private void drawPauseMenu(Graphics g){
-
-		try {
-			Image myImage = ImageIO.read(new File("gfx/meadow.jpg"));
-			g.drawImage(myImage, 0, 0, null);
-		}
-		catch (Exception e){
-			System.out.println(e);
-		}
+		g.drawRect(size.width/2 - 200, size.height/2 - 100, 400, 200);
 	}
 
 	private void drawBackground(Graphics g)
@@ -216,8 +210,6 @@ public class Viewer extends JPanel {
 
 		int camera_x = (int) (-playerPosition.getX() + size.getWidth()/2);
 		int camera_y = (int) (-playerPosition.getY() + size.getHeight()/2);
-
-		System.out.println("TileMap : " + size.getWidth());
 
 		if(camera_x>0 && tileMap.getMapWidth() == 50)
 			camera_x = 0;
@@ -318,7 +310,6 @@ public class Viewer extends JPanel {
 				//.out.println("Performing Action");
 				if(drawAttack((int) temp.getCentre().getX(), (int) temp.getCentre().getY(), (int) temp.getWidth(), (int) temp.getHeight(), temp.getTexture(), g, temp.getDirection()))
 				{
-					//System.out.println("---------------------------------");
 					temp.setActing(false);
 				}
 			}else {
@@ -350,7 +341,6 @@ public class Viewer extends JPanel {
 		}
 		g.translate(-(c*tileSize * scale), 0);
 
-		System.out.println(camera_x);
 		drawGui(camera_x, camera_y, player,g);
 	}
 
@@ -409,7 +399,6 @@ public class Viewer extends JPanel {
 				offset = 96;
 
 			g.drawImage(myImage, x,y, x+width, y+height, currentPositionInAnimation  , offset, currentPositionInAnimation + 16, offset + 32, null);
-			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

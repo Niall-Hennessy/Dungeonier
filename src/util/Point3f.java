@@ -39,7 +39,8 @@ public class Point3f {
 	int boundaryY = (int)size.getHeight();
 	private int boundary=900;
 	
-	
+	private Vector3f lastVector;
+
 	// default constructor
 	public Point3f() { 
 		setX(0.0f);
@@ -79,7 +80,7 @@ public class Point3f {
 
 
 	 //implement Point plus a Vector and comment what the method does 
-	public Point3f PlusVector(Vector3f Additonal) { 
+	public Point3f PlusVector(Vector3f Additonal) {
 		return new Point3f(this.getX()+Additonal.getX(), this.getY()+Additonal.getY(), this.getZ()+Additonal.getZ());
 	} 
 	
@@ -94,10 +95,13 @@ public class Point3f {
 		return new Vector3f(this.getX()-Minus.getX(), this.getY()-Minus.getY(), this.getZ()-Minus.getZ());
 	}
 	 
-	
+	public Vector3f getLastVector(){
+		return lastVector;
+	}
 	
 	 //Use for direct application of a Vector 
-	public void ApplyVector(Vector3f vector) { 
+	public void ApplyVector(Vector3f vector) {
+		 lastVector = vector;
 		 setX(CheckBoundaryX(this.getX()+vector.getX()));
 		 setY(CheckBoundaryY(this.getY()-vector.getY()));
 		 setZ(CheckBoundaryZ(this.getZ()-vector.getZ()));

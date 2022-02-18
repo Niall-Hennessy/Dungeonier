@@ -1,5 +1,7 @@
 import java.awt.*;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import Level.Level;
@@ -51,7 +53,7 @@ public class Model {
 	private  CopyOnWriteArrayList<Interactable> InteractableList  = new CopyOnWriteArrayList<Interactable>();
 	private  CopyOnWriteArrayList<GameObject> BulletList  = new CopyOnWriteArrayList<GameObject>();
     private  CopyOnWriteArrayList<GameObject> PlayerList  = new CopyOnWriteArrayList<GameObject>();
-	private CopyOnWriteArrayList<GameObject> CollisionList  = new CopyOnWriteArrayList<GameObject>();
+	private CopyOnWriteArrayList<Collider> CollisionList  = new CopyOnWriteArrayList<Collider>();
 	private CopyOnWriteArrayList<Door> DoorList  = new CopyOnWriteArrayList<Door>();
 
 	private int Score=0;
@@ -67,6 +69,9 @@ public class Model {
 	private Level currentLevel;
 
 	private int iFrames;
+
+	//Consider changing to enum
+	private int menuItem=0;
 
 	public Model() {
 		//Create Player
@@ -160,14 +165,47 @@ public class Model {
 
 			for (Door temp : DoorList) {
 				for (GameObject players : PlayerList) {
-					if (Math.abs(temp.getCentre().getX() - players.getCentre().getX()) < temp.getWidth()
-							&& Math.abs(temp.getCentre().getY() - players.getCentre().getY()) < temp.getHeight()) {
-
+					if (checkColliding(players, temp)) {
 						changeLevel(temp.getDestination(), temp.getDestinationPosition());
 					}
 				}
 			}
+
+			for (Collider temp : CollisionList) {
+				for (GameObject players : PlayerList) {
+					if(checkColliding(players, temp)) {
+						Vector3f vector = players.getCentre().getLastVector();
+						vector.setX(-vector.getX());
+						vector.setY(-vector.getY());
+
+						players.getCentre().ApplyVector(vector);
+					}
+				}
+			}
 		}
+	}
+
+	private boolean checkColliding(GameObject player, GameObject collider){
+		int Cx = (int)player.getCentre().getX();
+		int Cy = (int)player.getCentre().getY();
+		int Cr = 100;
+
+		int d=0;
+		float s=0;
+
+		if(Cx > collider.getCentre().getX() + collider.getWidth())
+			s = Cx - collider.getCentre().getX() + collider.getWidth();
+		else if(Cx < collider.getCentre().getX())
+			s = Cx - collider.getCentre().getX();
+		d+=s*s;
+
+		if(Cy > collider.getCentre().getY() + collider.getHeight())
+			s = Cy - collider.getCentre().getY() + collider.getHeight();
+		else if(Cy < collider.getCentre().getY())
+			s = Cy - collider.getCentre().getY();
+		d+=s*s;
+
+		return (d < Cr*Cr);
 	}
 
 	private void enemyLogic() {
@@ -202,11 +240,11 @@ public class Model {
 				temp.getCentre().ApplyVector(new Vector3f(x*speed, y*speed, 0));
 			}
 
-			//if (EnemiesList.size() < 3) {
-				//while (EnemiesList.size() < 3) {
-					//EnemiesList.add(new GameObject("gfx/slime_monster.png", 50, 50, new Point3f(((float) Math.random() * 1000), ((float) Math.random() * 1000), 0)));
-				//}
-			//}
+			if (EnemiesList.size() < currentLevel.getEnemyLimit()) {
+				while (EnemiesList.size() < currentLevel.getEnemyLimit()) {
+					EnemiesList.add(currentLevel.addEnemy());
+				}
+			}
 		}
 	}
 
@@ -331,6 +369,27 @@ public class Model {
 			if (Controller.getInstance().isKeySPressed()) {
 				System.out.println("Down");
 			}
+
+			if(Controller.getInstance().isKeyEnterPressed()){
+				System.out.println("Selecting Button");
+				if(menuItem == 0){
+					try {
+						File myObj = new File("SaveFiles/save.txt");
+						if (myObj.createNewFile()) {
+							System.out.println("File created: " + myObj.getName());
+						} else {
+							System.out.println("File already exists.");
+						}
+						FileWriter myWriter = new FileWriter("SaveFiles/save.txt");
+						myWriter.write("Files in Java might be tricky, but it is fun enough!");
+						myWriter.close();
+					} catch (IOException e) {
+						System.out.println("An error occurred.");
+						e.printStackTrace();
+					}
+				}
+
+			}
 		}
 		if(Controller.getInstance().isKeyEscPressed())
 		{
@@ -342,8 +401,8 @@ public class Model {
 
 	private void useItem(){
 		//Add code so that the player is capable of changing Item and then the player item menu whatever
-		//swordAttack();
-		arrowAttack();
+		swordAttack();
+		//arrowAttack();
 	}
 
 	//Item Use Methods
@@ -370,7 +429,7 @@ public class Model {
 		//DoorList.clear();
 		DoorList = currentLevel.getDoors();
 
-		PlayerOne.setCentre(new Point3f(0,0,0));
+		PlayerOne.setCentre(new Point3f(1000,1000,0));
 
 		try {
 			clip.stop();
@@ -409,7 +468,7 @@ public class Model {
 		return BulletList;
 	}
 
-	public CopyOnWriteArrayList<GameObject> getCollisionList() {
+	public CopyOnWriteArrayList<Collider> getCollisionList() {
 		return CollisionList;
 	}
 

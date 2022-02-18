@@ -76,7 +76,7 @@ public class MainWindow {
 					canvas.addKeyListener(Controller);    //adding the controller to the Canvas
 					canvas.requestFocusInWindow();   // making sure that the Canvas is in focus so keyboard input will be taking in .
 					startGame = true;
-					gameworld.changeLevel("House" , new Point3f(0,0,0));
+					gameworld.changeLevel("Field" , new Point3f(1000,1000,0));
 				}
 			});
 

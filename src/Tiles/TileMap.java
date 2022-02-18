@@ -3,6 +3,7 @@ package Tiles;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import util.Collider;
 import util.Door;
 import util.GameObject;
 import util.Point3f;
@@ -33,7 +34,7 @@ public class TileMap {
     private String[] backLayer;
 
     CopyOnWriteArrayList<Door> doors = new CopyOnWriteArrayList<Door>();
-    CopyOnWriteArrayList<GameObject> collisions = new CopyOnWriteArrayList<GameObject>();
+    CopyOnWriteArrayList<Collider> collisions = new CopyOnWriteArrayList<Collider>();
 
     public TileMap(String mapName, String spriteSheet){
 
@@ -125,7 +126,7 @@ public class TileMap {
     public CopyOnWriteArrayList<Door> getDoors() {
         return doors;
     }
-    public CopyOnWriteArrayList<GameObject> getCollisions() {
+    public CopyOnWriteArrayList<Collider> getCollisions() {
         return collisions;
     }
 
@@ -179,9 +180,8 @@ public class TileMap {
 
                 int len = document.getChildNodes().item(0).getChildNodes().item(item).getChildNodes().getLength();
 
-
-
                 for(int i = 1; i < len; i+=2) {
+                    System.out.println("i: " + i);
 
                     Node temp = document.getChildNodes().item(0).getChildNodes().item(item).getChildNodes().item(i);
 
@@ -189,7 +189,7 @@ public class TileMap {
                     doorHeight_x = (int) Float.parseFloat(temp.getAttributes().item(2).toString().split("\"")[1]) * 5;
                     doorPos_x = (int) Float.parseFloat(temp.getAttributes().item(3).toString().split("\"")[1]) * 5;
                     doorPos_y = (int) Float.parseFloat(temp.getAttributes().item(4).toString().split("\"")[1]) * 5;
-                    collisions.add(new GameObject("res/Bullet.png", doorHeight_x, doorHeight_y, new Point3f(doorPos_x, doorPos_y, 0)));
+                    collisions.add(new Collider("res/Bullet.png", doorHeight_x, doorHeight_y, new Point3f(doorPos_x, doorPos_y, 0)));
                 }
             }
 
