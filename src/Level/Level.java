@@ -21,6 +21,12 @@ public class Level {
         this.BGM = BGM;
     }
 
+    public Level(String name, String spriteSheet, int spriteSheetWidth, int spriteSheetHeight, File BGM){
+        this.tileMap = new TileMap(name, spriteSheet, spriteSheetWidth,  spriteSheetHeight);
+        this.levelName = name;
+        this.BGM = BGM;
+    }
+
     public String getLevelName(){
         return levelName;
     }

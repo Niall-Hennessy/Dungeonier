@@ -1,21 +1,15 @@
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Random;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import Level.Level;
 import Level.LevelManager;
 import util.*;
+import util.item.Chest;
+import util.item.Interactable;
+import util.item.Item;
 
-import javax.imageio.ImageIO;
 import javax.sound.sampled.*;
-import javax.swing.*;
 
 /*
  * Created by Abraham Campbell on 15/01/2020.
@@ -54,6 +48,7 @@ public class Model {
 
 	private  CopyOnWriteArrayList<GameObject> EnemiesList  = new CopyOnWriteArrayList<GameObject>();
 	private  CopyOnWriteArrayList<Item> ItemsList  = new CopyOnWriteArrayList<Item>();
+	private  CopyOnWriteArrayList<Interactable> InteractableList  = new CopyOnWriteArrayList<Interactable>();
 	private  CopyOnWriteArrayList<GameObject> BulletList  = new CopyOnWriteArrayList<GameObject>();
     private  CopyOnWriteArrayList<GameObject> PlayerList  = new CopyOnWriteArrayList<GameObject>();
 	private CopyOnWriteArrayList<GameObject> CollisionList  = new CopyOnWriteArrayList<GameObject>();
@@ -82,6 +77,10 @@ public class Model {
 		currentLevel = levelManager.getCurrentLevel();
 		CollisionList = currentLevel.getCollisions();
 		iFrames = 0;
+
+		Chest chest = new Chest("gfx/sprites/!chests.png",75,75,0,16,1, 2, new Point3f(200,200,0));
+		InteractableList.add(chest);
+
 
 		//0, 48 defines the heart Item
 		Item item;
@@ -163,17 +162,10 @@ public class Model {
 				for (GameObject players : PlayerList) {
 					if (Math.abs(temp.getCentre().getX() - players.getCentre().getX()) < temp.getWidth()
 							&& Math.abs(temp.getCentre().getY() - players.getCentre().getY()) < temp.getHeight()) {
-						System.out.println(currentLevel.getLevelName());
 
-						if(currentLevel.getLevelName() != "House")
-							changeLevel(temp.getDestination());
+						changeLevel(temp.getDestination(), temp.getDestinationPosition());
 					}
 				}
-			}
-
-			if(getScore() == 10 && !tester){
-				tester = !tester;
-				//changeLevel(2);
 			}
 		}
 	}
@@ -210,11 +202,11 @@ public class Model {
 				temp.getCentre().ApplyVector(new Vector3f(x*speed, y*speed, 0));
 			}
 
-			if (EnemiesList.size() < 3) {
-				while (EnemiesList.size() < 3) {
-					EnemiesList.add(new GameObject("gfx/slime_monster.png", 50, 50, new Point3f(((float) Math.random() * 1000), ((float) Math.random() * 1000), 0)));
-				}
-			}
+			//if (EnemiesList.size() < 3) {
+				//while (EnemiesList.size() < 3) {
+					//EnemiesList.add(new GameObject("gfx/slime_monster.png", 50, 50, new Point3f(((float) Math.random() * 1000), ((float) Math.random() * 1000), 0)));
+				//}
+			//}
 		}
 	}
 
@@ -274,6 +266,18 @@ public class Model {
                 PlayerOne.setDirection("down");
 			}
 
+			if (Controller.getInstance().isKeyEPressed()) {
+				Controller.getInstance().setKeyEPressed(false);
+				for (Interactable temp : InteractableList) {
+					for (GameObject players : PlayerList) {
+						if (Math.abs(temp.getCentre().getX() - players.getCentre().getX()) < temp.getWidth()
+								&& Math.abs(temp.getCentre().getY() - players.getCentre().getY()) < temp.getHeight()) {
+							temp.interact();
+						}
+					}
+				}
+			}
+
 			if (Controller.getInstance().isKeySpacePressed()) {
 				if(!PlayerOne.isActing())
 					useItem();
@@ -311,6 +315,23 @@ public class Model {
 				Controller.getInstance().setKeyEnterPressed(false);
 			}
 		}
+		else{
+			if (Controller.getInstance().isKeyAPressed()) {
+				System.out.println("Left");
+			}
+
+			if (Controller.getInstance().isKeyDPressed()) {
+				System.out.println("Right");
+			}
+
+			if (Controller.getInstance().isKeyWPressed()) {
+				System.out.println("UP");
+			}
+
+			if (Controller.getInstance().isKeySPressed()) {
+				System.out.println("Down");
+			}
+		}
 		if(Controller.getInstance().isKeyEscPressed())
 		{
 			paused = !paused;
@@ -336,16 +357,17 @@ public class Model {
 	}
 
 	private void togglePauseMenu(boolean visible){
+
 	}
 
-	public void changeLevel(String n){
+	public void changeLevel(String n, Point3f pos){
 		levelManager.changeLevel(n);
 		currentLevel = levelManager.getCurrentLevel();
 
-		CollisionList.clear();
+		//CollisionList.clear();
 		CollisionList = currentLevel.getCollisions();
 
-		DoorList.clear();
+		//DoorList.clear();
 		DoorList = currentLevel.getDoors();
 
 		PlayerOne.setCentre(new Point3f(0,0,0));
@@ -378,6 +400,10 @@ public class Model {
 	public CopyOnWriteArrayList<Item> getItems() {
 		return ItemsList;
 	}
+
+	public CopyOnWriteArrayList<Interactable> getInteractableList() {
+		return InteractableList;
+	}
 	
 	public CopyOnWriteArrayList<GameObject> getBullets() {
 		return BulletList;
@@ -385,6 +411,10 @@ public class Model {
 
 	public CopyOnWriteArrayList<GameObject> getCollisionList() {
 		return CollisionList;
+	}
+
+	public CopyOnWriteArrayList<Door> getDoorListList() {
+		return DoorList;
 	}
 
 	public int getScore() { 
@@ -402,6 +432,8 @@ public class Model {
 	public LevelManager getLevelManager() {
 		return levelManager;
 	}
+
+	public boolean isPaused() {return paused;}
 }
 
 

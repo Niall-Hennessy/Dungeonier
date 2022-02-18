@@ -55,6 +55,26 @@ public class TileMap {
         spriteSheetWidth = 40;
         spriteSheetHeight = 40;
     }
+    public TileMap(String mapName, String spriteSheet, int spriteSheetWidth, int spriteSheetHeight){
+
+        try {
+            readInTileMap(mapName);
+        }catch (Exception e){
+
+        }
+
+        tileSize = 16;
+        scale = 5;
+
+        try {
+            this.spriteSheet = ImageIO.read(new File("gfx/" + spriteSheet + ".png"));
+        }catch (Exception e){
+
+        }
+
+        this.spriteSheetWidth = spriteSheetWidth;
+        this.spriteSheetHeight = spriteSheetHeight;
+    }
 
     public int getMetaTile(int x, int y){return Integer.parseInt(metaLayer[x*mapWidth + y]);}
 
@@ -136,7 +156,7 @@ public class TileMap {
             int doorPos_y = 0;
 
             int item=9;
-            if(document.getChildNodes().item(0).getChildNodes().item(item) != null && mapName.equals("Town")) {
+            if(document.getChildNodes().item(0).getChildNodes().item(item) != null) {
 
                 //System.out.println(document.getChildNodes().item(0).getChildNodes().item(item).getChildNodes().item(1).getAttributes().item(0));
                 int len = document.getChildNodes().item(0).getChildNodes().item(item).getChildNodes().getLength();
@@ -144,8 +164,6 @@ public class TileMap {
 
 
                 for(int i = 1; i < len; i+=2) {
-                    System.out.println(i);
-
                     Node temp = document.getChildNodes().item(0).getChildNodes().item(item).getChildNodes().item(i);
 
                     doorHeight_y = (int) Float.parseFloat(temp.getAttributes().item(0).toString().split("\"")[1]) * 5;
@@ -157,15 +175,13 @@ public class TileMap {
             }
 
             item=11;
-            if(document.getChildNodes().item(0).getChildNodes().item(item) != null && mapName.equals("Town")) {
+            if(document.getChildNodes().item(0).getChildNodes().item(item) != null) {
 
-                System.out.println(document.getChildNodes().item(0).getChildNodes().item(item).getChildNodes().item(1).getAttributes().item(4));
                 int len = document.getChildNodes().item(0).getChildNodes().item(item).getChildNodes().getLength();
-                System.out.println(len);
+
 
 
                 for(int i = 1; i < len; i+=2) {
-                    System.out.println(i);
 
                     Node temp = document.getChildNodes().item(0).getChildNodes().item(item).getChildNodes().item(i);
 

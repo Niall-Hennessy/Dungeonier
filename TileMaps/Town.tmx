@@ -169,12 +169,12 @@
     <property name="Destination" value="Field"/>
    </properties>
   </object>
-  <object id="4" type="Doorway" x="784.515" y="667.939" width="16" height="40.5455">
+  <object id="4" type="Fire_Dungeon" x="784.515" y="667.939" width="16" height="40.5455">
    <properties>
-    <property name="Destination" value="Field"/>
+    <property name="Field" value="Field"/>
    </properties>
   </object>
-  <object id="5" type="Doorway" x="380.182" y="36.2727" width="39.3333" height="11.2121">
+  <object id="5" type="Castle" x="380.182" y="36.2727" width="39.3333" height="11.2121">
    <properties>
     <property name="Destination" value="Castle"/>
    </properties>

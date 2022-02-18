@@ -9,6 +9,7 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 
+import util.Point3f;
 import util.UnitTests;
 
 /*
@@ -75,7 +76,7 @@ public class MainWindow {
 					canvas.addKeyListener(Controller);    //adding the controller to the Canvas
 					canvas.requestFocusInWindow();   // making sure that the Canvas is in focus so keyboard input will be taking in .
 					startGame = true;
-					gameworld.changeLevel("Town" );
+					gameworld.changeLevel("House" , new Point3f(0,0,0));
 				}
 			});
 
@@ -88,6 +89,24 @@ public class MainWindow {
 
 		}
 
+		try {
+			BufferedImage bufferedImage = ImageIO.read(new File("gfx/New_Game.png"));
+			JButton startMenuButton = new JButton(new ImageIcon(bufferedImage));  // start button
+
+			startMenuButton.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+				}
+			});
+
+			//https://stackoverflow.com/questions/4898584/java-using-an-image-as-a-button
+			startMenuButton.setBounds(width / 2 - 170, 2*height / 3 - 40, 340, 80);
+			startMenuButton.setBorder(BorderFactory.createEmptyBorder());
+			startMenuButton.setContentAreaFilled(false);
+			frame.add(startMenuButton);
+		}catch (Exception e){
+
+		}
 	    //loading background image
         File BackroundToLoad = new File("gfx/meadow.jpg");  //should work okay on OSX and Linux but check if you have issues depending your eclipse install or if your running this without an IDE
         try {
@@ -141,8 +160,7 @@ public class MainWindow {
         canvas.updateview();
 		
 		// Both these calls could be setup as  a thread but we want to simplify the game logic for you.  
-		//score update  
-		 frame.setTitle("Score =  "+ gameworld.getScore());
+		//score update
 	}
 
 }

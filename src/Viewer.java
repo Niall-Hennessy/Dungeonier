@@ -9,7 +9,8 @@ import Level.Level;
 import Projectile.Fireball;
 import Tiles.TileMap;
 import util.GameObject;
-import util.Item;
+import util.item.Interactable;
+import util.item.Item;
 import util.Point3f;
 
 
@@ -82,8 +83,12 @@ public class Viewer extends JPanel {
 
 		size = gameworld.getSize();
 		
-		//Draw background 
+		//Draw background
+
 		drawBackground(g);
+
+		if(gameworld.isPaused())
+			drawPauseMenu(g);
 
 		//drawGui(g);
 
@@ -92,18 +97,13 @@ public class Viewer extends JPanel {
 		  
 		//Draw Bullets 
 		// change back 
-		gameworld.getBullets().forEach((temp) -> 
-		{ 
-			drawBullet((int) temp.getCentre().getX(), (int) temp.getCentre().getY(), (int) temp.getWidth(), (int) temp.getHeight(), temp.getTexture(),g);
-			Fireball fireball = new Fireball();
-			fireball.drawProjectile();
-		}); 
+
 		
 		//Draw Enemies
 
-		gameworld.getCollisionList().forEach((temp) ->
+		gameworld.getDoorListList().forEach((temp) ->
 		{
-			//drawCollisions((int) temp.getCentre().getX(), (int) temp.getCentre().getY(), (int) temp.getWidth(), (int) temp.getHeight(), temp.getTexture(),g, temp.getDirection());
+			drawCollisions((int) temp.getCentre().getX(), (int) temp.getCentre().getY(), (int) temp.getWidth(), (int) temp.getHeight(), temp.getTexture(),g, temp.getDirection());
 		});
 	}
 	
@@ -135,7 +135,7 @@ public class Viewer extends JPanel {
 	}
 
 	private void drawItems(Item item, Graphics g) {
-		int currentPositionInAnimation = ((int) ((CurrentAnimationTime%item.getNumFrames())/1))*16; //slows down animation so every 10 frames we get another frame so every 100ms
+		int currentPositionInAnimation = ((int) ((CurrentAnimationTime%(item.getNumFrames()*10))/10))*16; //slows down animation so every 10 frames we get another frame so every 100ms
 
 		int x = (int)item.getCentre().getX();
 		int y = (int)item.getCentre().getY();
@@ -143,7 +143,25 @@ public class Viewer extends JPanel {
 		int sx1 = item.getSx1();
 		int sy1 = item.getSy1();
 
-		g.drawImage(item.getImage(), x, y, x + 100, y + 100, sx1 + currentPositionInAnimation, sy1, sx1 + currentPositionInAnimation + 16,  sy1 + 16, null);
+		int spacing = item.getSpacing();
+		spacing = sx1/16 * spacing;
+
+		g.drawImage(item.getImage(), x, y, x + item.getWidth(), y + item.getHeight(), sx1 + currentPositionInAnimation + spacing, sy1, sx1 + currentPositionInAnimation + 16 + spacing,  sy1 + 16, null);
+	}
+
+	private void drawInteractable(Interactable item, Graphics g) {
+		int currentPositionInAnimation = ((int) ((item.getAnimationTime()%(item.getNumFrames()*20))/20))*32; //slows down animation so every 10 frames we get another frame so every 100ms
+
+		int x = (int)item.getCentre().getX();
+		int y = (int)item.getCentre().getY();
+
+		int sx1 = item.getSx1();
+		int sy1 = item.getSy1();
+
+		int spacing = item.getSpacing();
+		spacing = sx1/16 * spacing;
+
+		g.drawImage(item.getImage(), x, y, x + item.getWidth(), y + item.getHeight(), sx1 + spacing, sy1 + currentPositionInAnimation, sx1 + 16 + spacing,  sy1 + currentPositionInAnimation + 16, null);
 	}
 
 	private void drawCollisions(int x, int y, int width, int height, String texture, Graphics g, String direction) {
@@ -173,6 +191,18 @@ public class Viewer extends JPanel {
 
 	}
 
+	//UI SPRITE FROM https://opengameart.org/content/golden-ui
+	private void drawPauseMenu(Graphics g){
+
+		try {
+			Image myImage = ImageIO.read(new File("gfx/meadow.jpg"));
+			g.drawImage(myImage, 0, 0, null);
+		}
+		catch (Exception e){
+			System.out.println(e);
+		}
+	}
+
 	private void drawBackground(Graphics g)
 	{
 		//JavaScript Guide on the Basic Principles for this idea
@@ -180,21 +210,24 @@ public class Viewer extends JPanel {
 		//https://developer.mozilla.org/en-US/docs/Games/Techniques/Tilemaps/Square_tilemaps_implementation:_Scrolling_maps
 
 		Level currentLevel = gameworld.getCurrentLevel();
-		Point3f playerPosition = gameworld.getPlayers().get(0).getCentre();
+		GameObject player = gameworld.getPlayers().get(0);
+		Point3f playerPosition = player.getCentre();
 		TileMap tileMap = currentLevel.getTileMap();
 
 		int camera_x = (int) (-playerPosition.getX() + size.getWidth()/2);
 		int camera_y = (int) (-playerPosition.getY() + size.getHeight()/2);
 
+		System.out.println("TileMap : " + size.getWidth());
+
 		if(camera_x>0 && tileMap.getMapWidth() == 50)
 			camera_x = 0;
-		else if(camera_x<-4656 && tileMap.getMapWidth() == 50)
-			camera_x = -4656;
+		else if(camera_x<-size.width/2 - 180 && tileMap.getMapWidth() == 50)
+			camera_x = -size.width/2 - 180;
 
 		if(camera_y>0 && tileMap.getMapWidth() == 50)
 			camera_y = 0;
-		else if(camera_y<-5840 && tileMap.getMapHeight() == 50)
-			camera_y = -5840;
+		else if(camera_y<-size.height*2 + 225 && tileMap.getMapHeight() == 50)
+			camera_y = -size.height*2 + 225;
 
 		g.translate(camera_x, camera_y);
 
@@ -221,9 +254,9 @@ public class Viewer extends JPanel {
 							tileSize * scale, // target width
 							tileSize * scale, // target height
 							(tile - 1) % spriteSheetWidth * tileSize, // source x
-							(tile) / spriteSheetHeight * tileSize, // source y
+							(tile - 1) / spriteSheetWidth * tileSize, // source y
 							(tile - 1) % spriteSheetWidth * tileSize + tileSize, // source width
-							(tile) / spriteSheetHeight * tileSize + tileSize, // source height
+							(tile - 1) / spriteSheetWidth * tileSize + tileSize, // source height
 							null
 					);
 				}
@@ -245,9 +278,9 @@ public class Viewer extends JPanel {
 							tileSize * scale, // target width
 							tileSize * scale, // target height
 							(tile - 1) % spriteSheetWidth * tileSize, // source x
-							(tile) / spriteSheetHeight * tileSize, // source y
+							(tile - 1) / spriteSheetWidth * tileSize, // source y
 							(tile - 1) % spriteSheetWidth * tileSize + tileSize, // source width
-							(tile) / spriteSheetHeight * tileSize + tileSize, // source height
+							(tile - 1) / spriteSheetWidth * tileSize + tileSize, // source height
 							null
 					);
 				}
@@ -257,17 +290,26 @@ public class Viewer extends JPanel {
 		}
 		g.translate(-(c*tileSize * scale), 0);
 
-		int finalCamera_x = camera_x;
-		int finalCamera_y = camera_y;
-
 		gameworld.getItems().forEach((item) ->
 		{
 			drawItems(item, g);
 		});
 
+		gameworld.getInteractableList().forEach((item) ->
+		{
+			drawInteractable(item, g);
+		});
+
 		gameworld.getEnemies().forEach((temp) ->
 		{
 			drawEnemies((int) temp.getCentre().getX(), (int) temp.getCentre().getY(), (int) temp.getWidth(), (int) temp.getHeight(), temp.getTexture(),g, temp.getDirection());
+		});
+
+		gameworld.getBullets().forEach((temp) ->
+		{
+			drawBullet((int) temp.getCentre().getX(), (int) temp.getCentre().getY(), (int) temp.getWidth(), (int) temp.getHeight(), temp.getTexture(),g);
+			Fireball fireball = new Fireball();
+			fireball.drawProjectile();
 		});
 
 		gameworld.getPlayers().forEach((temp) ->
@@ -282,7 +324,6 @@ public class Viewer extends JPanel {
 			}else {
 				drawPlayer((int) temp.getCentre().getX(), (int) temp.getCentre().getY(), (int) temp.getWidth(), (int) temp.getHeight(), temp.getTexture(), g, temp.getDirection());
 			}
-			drawGui(finalCamera_x, finalCamera_y, temp,g);
 		});
 
 		c=0;
@@ -297,9 +338,9 @@ public class Viewer extends JPanel {
 							tileSize * scale, // target width
 							tileSize * scale, // target height
 							(tile - 1) % spriteSheetWidth * tileSize, // source x
-							(tile) / spriteSheetHeight * tileSize, // source y
+							(tile - 1) / spriteSheetWidth * tileSize, // source y
 							(tile - 1) % spriteSheetWidth * tileSize + tileSize, // source width
-							(tile) / spriteSheetHeight * tileSize + tileSize, // source height
+							(tile - 1) / spriteSheetWidth * tileSize + tileSize, // source height
 							null
 					);
 				}
@@ -308,6 +349,9 @@ public class Viewer extends JPanel {
 			g.translate(tileSize*scale, -(r*tileSize * scale));
 		}
 		g.translate(-(c*tileSize * scale), 0);
+
+		System.out.println(camera_x);
+		drawGui(camera_x, camera_y, player,g);
 	}
 
 	private void drawGui(int a, int b, GameObject Player, Graphics g){
