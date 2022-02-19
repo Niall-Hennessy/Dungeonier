@@ -10,6 +10,7 @@ import util.*;
 import util.item.Chest;
 import util.item.Interactable;
 import util.item.Item;
+import util.item.NPC;
 
 import javax.sound.sampled.*;
 
@@ -56,6 +57,12 @@ public class Model {
 	private CopyOnWriteArrayList<Collider> CollisionList  = new CopyOnWriteArrayList<Collider>();
 	private CopyOnWriteArrayList<Door> DoorList  = new CopyOnWriteArrayList<Door>();
 
+	private enum GameState{
+		PLAY, PAUSE, DEAD
+	}
+
+	private GameState gameState = GameState.PLAY;
+
 	private int Score=0;
 	private boolean paused;
 	private boolean twoPlayer;
@@ -75,7 +82,7 @@ public class Model {
 
 	public Model() {
 		//Create Player
-		PlayerOne = new GameObject("gfx/character.png", 100, 100, new Point3f(500, 500, 0));
+		PlayerOne = new GameObject("gfx/Character/Female/Female 01-1.png", 100, 100, new Point3f(500, 500, 0));
 		PlayerList.add(PlayerOne);
 		paused = false;
 		twoPlayer = false;
@@ -83,8 +90,6 @@ public class Model {
 		CollisionList = currentLevel.getCollisions();
 		iFrames = 0;
 
-		Chest chest = new Chest("gfx/sprites/!chests.png",75,75,0,16,1, 2, new Point3f(200,200,0));
-		InteractableList.add(chest);
 
 
 		//0, 48 defines the heart Item
@@ -119,13 +124,17 @@ public class Model {
 
 	private void gameLogic() {
 
-		if(PlayerOne.isDead())
-			System.out.println("Game Over");
+		if(PlayerOne.isDead()) {
+			gameState = GameState.DEAD;
+			clip.stop();
+			clip.flush();
+			clip.close();
+		}
 
 		if(iFrames > 0)
 			iFrames--;
 		
-		if(!paused) {
+		if(gameState == GameState.PLAY) {
 			// this is a way to increment across the array list data structure
 			//see if they hit anything
 			// using enhanced for-loop style as it makes it alot easier both code wise and reading wise too
@@ -141,9 +150,7 @@ public class Model {
 
 			for (GameObject temp : EnemiesList) {
 			    for (GameObject players : PlayerList) {
-                    if (Math.abs(temp.getCentre().getX() - players.getCentre().getX()) < temp.getWidth()
-                            && Math.abs(temp.getCentre().getY() - players.getCentre().getY()) < temp.getHeight()
-							&& iFrames == 0) {
+                    if (checkColliding(players.getCentre(), temp, 100) && iFrames == 0) {
                         players.reduceHealth(1);
                         iFrames = 60;
                     }
@@ -152,8 +159,7 @@ public class Model {
 
 			for (Item temp : ItemsList) {
 				for (GameObject players : PlayerList) {
-					if (Math.abs(temp.getCentre().getX() - players.getCentre().getX()) < temp.getWidth()
-							&& Math.abs(temp.getCentre().getY() - players.getCentre().getY()) < temp.getHeight()) {
+					if (checkColliding(players.getCentre(), temp, 100)) {
 						String reaction = temp.action(players);
 						if(reaction.equals("Delete")) {
 							ItemsList.remove(temp);
@@ -165,7 +171,7 @@ public class Model {
 
 			for (Door temp : DoorList) {
 				for (GameObject players : PlayerList) {
-					if (checkColliding(players, temp)) {
+					if (checkColliding(players.getCentre(), temp, 100)) {
 						changeLevel(temp.getDestination(), temp.getDestinationPosition());
 					}
 				}
@@ -173,7 +179,7 @@ public class Model {
 
 			for (Collider temp : CollisionList) {
 				for (GameObject players : PlayerList) {
-					if(checkColliding(players, temp)) {
+					if(checkColliding(players.getCentre(), temp, 100)) {
 						Vector3f vector = players.getCentre().getLastVector();
 						vector.setX(-vector.getX());
 						vector.setY(-vector.getY());
@@ -182,13 +188,28 @@ public class Model {
 					}
 				}
 			}
+
+			for (Interactable temp : InteractableList) {
+				for (GameObject players : PlayerList) {
+					if (checkColliding(players.getCentre(), temp, 100)) {
+						Vector3f vector = players.getCentre().getLastVector();
+						vector.setX(-vector.getX());
+						vector.setY(-vector.getY());
+
+						players.getCentre().ApplyVector(vector);
+						if(Controller.getInstance().isKeyEPressed()){
+							temp.interact();
+						}
+					}
+				}
+			}
 		}
 	}
 
-	private boolean checkColliding(GameObject player, GameObject collider){
-		int Cx = (int)player.getCentre().getX();
-		int Cy = (int)player.getCentre().getY();
-		int Cr = 100;
+	private boolean checkColliding(Point3f player, GameObject collider, int radius){
+		int Cx = (int)player.getX();
+		int Cy = (int)player.getY();
+		int Cr = radius;
 
 		int d=0;
 		float s=0;
@@ -210,7 +231,7 @@ public class Model {
 
 	private void enemyLogic() {
 		// TODO Auto-generated method stub
-		if(!paused) {
+		if(gameState == GameState.PLAY) {
 			float speed = 1f;
 			for (GameObject temp : EnemiesList) {
 				// Move enemies
@@ -251,7 +272,7 @@ public class Model {
 	private void bulletLogic() {
 		// TODO Auto-generated method stub
 		// move bullets 
-		if(!paused) {
+		if(gameState == GameState.PLAY) {
 			for (GameObject temp : BulletList) {
 				//check to move them
 
@@ -281,7 +302,7 @@ public class Model {
 		// smoother animation is possible if we make a target position  // done but may try to change things for students  
 		 
 		//check for movement and if you fired a bullet 
-		if(!paused) {
+		if(gameState == GameState.PLAY) {
 			float speed = 2f;
 
 			if (Controller.getInstance().isKeyAPressed()) {
@@ -308,8 +329,10 @@ public class Model {
 				Controller.getInstance().setKeyEPressed(false);
 				for (Interactable temp : InteractableList) {
 					for (GameObject players : PlayerList) {
-						if (Math.abs(temp.getCentre().getX() - players.getCentre().getX()) < temp.getWidth()
-								&& Math.abs(temp.getCentre().getY() - players.getCentre().getY()) < temp.getHeight()) {
+						Point3f point3f = new Point3f(0,0,0);
+						point3f.setX(players.getCentre().getX() - 50);
+						point3f.setY(players.getCentre().getY() - 50);
+						if (checkColliding(point3f, temp, 200)) {
 							temp.interact();
 						}
 					}
@@ -353,7 +376,7 @@ public class Model {
 				Controller.getInstance().setKeyEnterPressed(false);
 			}
 		}
-		else{
+		else if(gameState == GameState.PAUSE){
 			if (Controller.getInstance().isKeyAPressed()) {
 				System.out.println("Left");
 			}
@@ -393,8 +416,11 @@ public class Model {
 		}
 		if(Controller.getInstance().isKeyEscPressed())
 		{
-			paused = !paused;
-			togglePauseMenu(paused);
+			if(gameState == GameState.PLAY)
+				gameState = GameState.PAUSE;
+			else if(gameState == GameState.PAUSE)
+				gameState = GameState.PLAY;
+
 			Controller.getInstance().setKeyEscPressed(false);
 		}
 	}
@@ -428,6 +454,8 @@ public class Model {
 
 		//DoorList.clear();
 		DoorList = currentLevel.getDoors();
+
+		InteractableList = currentLevel.getInteractables();
 
 		PlayerOne.setCentre(new Point3f(1000,1000,0));
 
@@ -493,6 +521,13 @@ public class Model {
 	}
 
 	public boolean isPaused() {return paused;}
+
+	public boolean isGameOver(){
+		if(gameState == GameState.DEAD)
+			return true;
+		else
+			return false;
+	}
 }
 
 

@@ -5,6 +5,7 @@ import util.Collider;
 import util.Door;
 import util.GameObject;
 import util.Point3f;
+import util.item.Interactable;
 
 import java.io.File;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -68,5 +69,9 @@ public class Level {
 
     public CopyOnWriteArrayList<Door> getDoors() {
         return tileMap.getDoors();
+    }
+
+    public CopyOnWriteArrayList<Interactable> getInteractables() {
+        return tileMap.getInteractables();
     }
 }

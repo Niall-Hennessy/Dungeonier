@@ -7,6 +7,10 @@ public class Chest extends Interactable{
         super(textureLocation, width, height, sx1, sy1, numFrames, centre);
     }
 
+    public Chest(String textureLocation, int width, int height, int sx1, int sy1, int numFrames, Point3f centre, int size) {
+        super(textureLocation, width, height, sx1, sy1, numFrames, centre, size);
+    }
+
     public Chest(String textureLocation, int width, int height, int sx1, int sy1, int numFrames, int spacing, Point3f centre) {
         super(textureLocation, width, height, sx1, sy1, numFrames, spacing, centre);
     }

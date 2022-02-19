@@ -85,7 +85,10 @@ public class Viewer extends JPanel {
 		
 		//Draw background
 
-		drawBackground(g);
+		if(gameworld.isGameOver())
+			drawGameOver(g);
+		else
+			drawBackground(g);
 
 		if(gameworld.isPaused())
 			drawPauseMenu(g);
@@ -106,7 +109,8 @@ public class Viewer extends JPanel {
 			//drawCollisions((int) temp.getCentre().getX(), (int) temp.getCentre().getY(), (int) temp.getWidth(), (int) temp.getHeight(), temp.getTexture(),g, temp.getDirection());
 		});
 	}
-	
+
+	//https://pipoya.itch.io/pipoya-free-rpg-character-sprites-32x32
 	private void drawEnemies(int x, int y, int width, int height, String texture, Graphics g, String direction) {
 		File TextureToLoad = new File(texture);  //should work okay on OSX and Linux but check if you have issues depending your eclipse install or if your running this without an IDE 
 		try {
@@ -161,7 +165,9 @@ public class Viewer extends JPanel {
 		int spacing = item.getSpacing();
 		spacing = sx1/16 * spacing;
 
-		g.drawImage(item.getImage(), x, y, x + item.getWidth(), y + item.getHeight(), sx1 + spacing, sy1 + currentPositionInAnimation, sx1 + 16 + spacing,  sy1 + currentPositionInAnimation + 16, null);
+		int size = item.getSize();
+
+		g.drawImage(item.getImage(), x, y, x + item.getWidth(), y + item.getHeight(), sx1 + currentPositionInAnimation + spacing, sy1, sx1 + currentPositionInAnimation + size + spacing,  sy1 + size, null);
 	}
 
 	private void drawCollisions(int x, int y, int width, int height, String texture, Graphics g, String direction) {
@@ -344,6 +350,21 @@ public class Viewer extends JPanel {
 		drawGui(camera_x, camera_y, player,g);
 	}
 
+	private void drawGameOver(Graphics g){
+
+		File gameOver = new File("gfx/Game Over.png");
+
+		try{
+			Image gameOverImage = ImageIO.read(gameOver);
+
+			g.fillRect(0,0,size.width,size.height);
+			g.drawImage(gameOverImage,size.width/2 - 50,size.height/2 - 250, 1000,500, null);
+		}
+		catch (Exception e){
+			System.out.println(e);
+		}
+	}
+
 	private void drawGui(int a, int b, GameObject Player, Graphics g){
 		File TextureToLoad = new File("gfx/objects.png");
 		try {
@@ -382,25 +403,20 @@ public class Viewer extends JPanel {
 		File TextureToLoad = new File(texture);  //should work okay on OSX and Linux but check if you have issues depending your eclipse install or if your running this without an IDE
 		try {
 			Image myImage = ImageIO.read(TextureToLoad);
-			//The spirte is 32x32 pixel wide and 4 of them are placed together so we need to grab a different one each time 
-			//remember your training :-) computer science everything starts at 0 so 32 pixels gets us to 31  
-			int currentPositionInAnimation = (((int) ((CurrentAnimationTime%40)/10))*16); //slows down animation so every 10 frames we get another frame so every 100ms
-			//int currentPositionInAnimation;
-			//currentPositionInAnimation = 48;
+			int currentPositionInAnimation = (((int) ((CurrentAnimationTime%30)/10))*32);
 
 			int offset = 0;
 			if(direction == "down")
 				offset = 0;
-			else if(direction == "right")
+			else if(direction == "left")
 				offset = 32;
-			else if(direction == "up")
+			else if(direction == "right")
 				offset = 64;
 			else
 				offset = 96;
 
-			g.drawImage(myImage, x,y, x+width, y+height, currentPositionInAnimation  , offset, currentPositionInAnimation + 16, offset + 32, null);
+			g.drawImage(myImage, x,y, x+width, y+height, currentPositionInAnimation  , offset, currentPositionInAnimation + 32, offset + 32, null);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		 
