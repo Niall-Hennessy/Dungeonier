@@ -43,7 +43,6 @@ public class LevelManager {
     }
 
     public void changeLevel(String n){
-        System.out.println(n);
         currentLevel = destinations.get(n);
     }
 

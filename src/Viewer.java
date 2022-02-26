@@ -5,6 +5,7 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 
+import Enemy.Enemy;
 import Level.Level;
 import Projectile.Fireball;
 import Tiles.TileMap;
@@ -106,36 +107,31 @@ public class Viewer extends JPanel {
 
 		gameworld.getCollisionList().forEach((temp) ->
 		{
-			//drawCollisions((int) temp.getCentre().getX(), (int) temp.getCentre().getY(), (int) temp.getWidth(), (int) temp.getHeight(), temp.getTexture(),g, temp.getDirection());
+			drawCollisions((int) temp.getCentre().getX(), (int) temp.getCentre().getY(), (int) temp.getWidth(), (int) temp.getHeight(), temp.getTexture(),g, temp.getDirection());
 		});
 	}
 
 	//https://pipoya.itch.io/pipoya-free-rpg-character-sprites-32x32
-	private void drawEnemies(int x, int y, int width, int height, String texture, Graphics g, String direction) {
-		File TextureToLoad = new File(texture);  //should work okay on OSX and Linux but check if you have issues depending your eclipse install or if your running this without an IDE 
-		try {
-			Image myImage = ImageIO.read(TextureToLoad);
-			//The spirte is 32x32 pixel wide and 4 of them are placed together so we need to grab a different one each time 
-			//remember your training :-) computer science everything starts at 0 so 32 pixels gets us to 31
-			//int currentPositionInAnimation= ((int) ((CurrentAnimationTime%40)/10))*32
-			int currentPositionInAnimation = ((int) ((CurrentAnimationTime%20)/10))*24; //slows down animation so every 10 frames we get another frame so every 100ms
-			//System.out.println(CurrentAnimationTime%3);
+	private void drawEnemies(Enemy enemy, Graphics g) {
+		int currentPositionInAnimation = ((int) ((CurrentAnimationTime%20)/10))*32;
 
-			int offset;
-			if(direction.equals("up"))
-				offset = 0;
-			else if(direction.equals("down"))
-				offset = 48;
-			else
-				offset = 24;
+		int offset=0;
 
-			g.drawImage(myImage, x,y, x+width, y+height, currentPositionInAnimation  , offset, currentPositionInAnimation+23, 24+offset, null);
-			
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} 
-		
+		if(enemy.getDirection().equals("down"))
+			offset = 0;
+		else if(enemy.getDirection().equals("left")){
+			offset = 32;
+		}
+		else if(enemy.getDirection().equals("right")) {
+			offset = 64;
+		}
+		else
+			offset = 96;
+
+		int x = (int)enemy.getCentre().getX();
+		int y = (int)enemy.getCentre().getY();
+
+		g.drawImage(enemy.getImage(), x, y, x+enemy.getWidth(), y+enemy.getHeight(), currentPositionInAnimation  , offset, currentPositionInAnimation+31, 32+offset, null);
 	}
 
 	private void drawItems(Item item, Graphics g) {
@@ -300,7 +296,7 @@ public class Viewer extends JPanel {
 
 		gameworld.getEnemies().forEach((temp) ->
 		{
-			drawEnemies((int) temp.getCentre().getX(), (int) temp.getCentre().getY(), (int) temp.getWidth(), (int) temp.getHeight(), temp.getTexture(),g, temp.getDirection());
+			drawEnemies(temp,g);
 		});
 
 		gameworld.getBullets().forEach((temp) ->
@@ -318,7 +314,7 @@ public class Viewer extends JPanel {
 				{
 					temp.setActing(false);
 				}
-			}else {
+			}else if(gameworld.getiFrames() % 2 == 0) {
 				drawPlayer((int) temp.getCentre().getX(), (int) temp.getCentre().getY(), (int) temp.getWidth(), (int) temp.getHeight(), temp.getTexture(), g, temp.getDirection());
 			}
 		});
@@ -373,10 +369,22 @@ public class Viewer extends JPanel {
 			int y = 0;
 			int i;
 
+			a -= 10;
+
 			for(i=0;i<Player.getHealth();i++)
 				g.drawImage(myImage,-a+110*i,-b,-a+110*i+100,-b+100,x,y,x + 16,y + 16,null);
 			for(int j=i;j<Player.getMaxHealth();j++)
 				g.drawImage(myImage,-a+110*j,-b,-a+110*j+100,-b+100,x*2,y,x*2 + 16,y + 16,null);
+
+
+			//Draw the Selected Item Circle
+			int s=96;
+			g.drawImage(myImage, -a,-b+100,-a+200,-b+300, 0,s,32,s+32,null);
+
+			//Draw the Selected Item
+			s=48;
+			int t=64;
+			g.drawImage(myImage, -a+50,-b+150,-a+150,-b+250, t,s,t+16,s+16,null);
 
 
 		}catch (Exception e){
@@ -390,7 +398,7 @@ public class Viewer extends JPanel {
 		try {
 			Image myImage = ImageIO.read(TextureToLoad); 
 			//64 by 128 
-			 g.drawImage(myImage, x,y, x+width, y+height, 0 , 0, 63, 127, null); 
+			 //g.drawImage(myImage, x,y, x+width, y+height, 0 , 0, 63, 127, null);
 			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

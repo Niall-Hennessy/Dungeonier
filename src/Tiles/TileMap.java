@@ -1,5 +1,7 @@
 package Tiles;
 
+import Enemy.Enemy;
+import Enemy.RedSlime;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -10,6 +12,8 @@ import util.Point3f;
 import util.item.Chest;
 import util.item.Interactable;
 import util.item.NPC;
+import Enemy.Skeleton;
+import Enemy.Goblin;
 
 import javax.imageio.ImageIO;
 import javax.xml.parsers.DocumentBuilder;
@@ -39,6 +43,7 @@ public class TileMap {
     CopyOnWriteArrayList<Door> doors = new CopyOnWriteArrayList<Door>();
     CopyOnWriteArrayList<Collider> collisions = new CopyOnWriteArrayList<Collider>();
     CopyOnWriteArrayList<Interactable> interactables = new CopyOnWriteArrayList<Interactable>();
+    CopyOnWriteArrayList<Enemy> enemies = new CopyOnWriteArrayList<Enemy>();
 
     public TileMap(String mapName, String spriteSheet){
 
@@ -60,6 +65,7 @@ public class TileMap {
         spriteSheetWidth = 40;
         spriteSheetHeight = 40;
     }
+
     public TileMap(String mapName, String spriteSheet, int spriteSheetWidth, int spriteSheetHeight){
 
         try {
@@ -136,6 +142,9 @@ public class TileMap {
     public CopyOnWriteArrayList<Interactable> getInteractables() {
         return interactables;
     }
+    public CopyOnWriteArrayList<Enemy> getEnemies() {
+        return enemies;
+    }
 
     public void readInTileMap(String mapName){
         try{
@@ -164,6 +173,9 @@ public class TileMap {
             int doorPos_y = 0;
 
             int item=9;
+
+            Point3f point3f = new Point3f();
+
             if(document.getChildNodes().item(0).getChildNodes().item(item) != null) {
 
                 //System.out.println(document.getChildNodes().item(0).getChildNodes().item(item).getChildNodes().item(1).getAttributes().item(0));
@@ -172,11 +184,15 @@ public class TileMap {
                 for(int i = 1; i < len; i+=2) {
                     Node temp = document.getChildNodes().item(0).getChildNodes().item(item).getChildNodes().item(i);
 
+                    String pos = temp.getChildNodes().item(1).getChildNodes().item(1).getAttributes().item(1).toString().split("\"")[1];
+                    point3f.setX(Float.parseFloat(pos.split(",")[0]));
+                    point3f.setY(Float.parseFloat(pos.split(",")[1]));
+
                     doorHeight_y = (int) Float.parseFloat(temp.getAttributes().item(0).toString().split("\"")[1]) * 5;
                     doorHeight_x = (int) Float.parseFloat(temp.getAttributes().item(3).toString().split("\"")[1]) * 5;
                     doorPos_x = (int) Float.parseFloat(temp.getAttributes().item(4).toString().split("\"")[1]) * 5;
                     doorPos_y = (int) Float.parseFloat(temp.getAttributes().item(5).toString().split("\"")[1]) * 5;
-                    doors.add(new Door(temp.getAttributes().item(2).toString().split("\"")[1], doorHeight_x, doorHeight_y, new Point3f(doorPos_x, doorPos_y, 0)));
+                    doors.add(new Door(temp.getAttributes().item(2).toString().split("\"")[1], point3f, doorHeight_x, doorHeight_y, new Point3f(doorPos_x, doorPos_y, 0)));
                 }
             }
 
@@ -205,8 +221,6 @@ public class TileMap {
                 for(int i = 1; i < len; i+=2) {
                     Node temp = document.getChildNodes().item(0).getChildNodes().item(item).getChildNodes().item(i);
 
-                    System.out.println(temp.getAttributes().item(1).toString().split("\"")[1]);
-
                     String[] type = temp.getAttributes().item(1).toString().split("\"")[1].split("/");
                     int pos_x = (int) Float.parseFloat(temp.getAttributes().item(2).toString().split("\"")[1]) * 5;
                     int pos_y = (int) Float.parseFloat(temp.getAttributes().item(3).toString().split("\"")[1]) * 5;
@@ -215,8 +229,27 @@ public class TileMap {
                         interactables.add(new NPC("gfx/Character/" + type[1] + "/" + type[2] + ".png", 100, 100, 0, 0, 3, new Point3f(pos_x, pos_y, 0), 32));
                     }
                     else if (type[0].equals("Chest")) {
-                        System.out.println("Test");
                         interactables.add(new Chest("gfx/Super_Retro_World_free/animation/chest_002.png", 100, 100, 0, 16, 1, new Point3f(pos_x, pos_y, 0), 16));
+                    }
+                }
+            }
+
+            item=15;
+            if(document.getChildNodes().item(0).getChildNodes().item(item) != null) {
+
+                int len = document.getChildNodes().item(0).getChildNodes().item(item).getChildNodes().getLength();
+
+                for(int i = 1; i < len; i+=2) {
+                    Node temp = document.getChildNodes().item(0).getChildNodes().item(item).getChildNodes().item(i);
+
+                    String[] type = temp.getAttributes().item(1).toString().split("\"")[1].split("/");
+                    int pos_x = (int) Float.parseFloat(temp.getAttributes().item(2).toString().split("\"")[1]) * 5;
+                    int pos_y = (int) Float.parseFloat(temp.getAttributes().item(3).toString().split("\"")[1]) * 5;
+
+                    if (type[0].equals("Skeleton")) {
+                        enemies.add(new Skeleton(new Point3f(pos_x, pos_y, 0)));
+                    }else if (type[0].equals("Goblin")){
+                        enemies.add(new Goblin(new Point3f(pos_x, pos_y, 0)));
                     }
                 }
             }

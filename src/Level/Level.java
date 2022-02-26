@@ -1,5 +1,7 @@
 package Level;
 
+import Enemy.Enemy;
+import Enemy.RedSlime;
 import Tiles.TileMap;
 import util.Collider;
 import util.Door;
@@ -39,10 +41,6 @@ public class Level {
         this.enemyLimit = enemyLimit;
     }
 
-    public GameObject addEnemy(){
-        return new GameObject("gfx/slime_monster.png", 50, 50, new Point3f(((float) Math.random() * 1000), ((float) Math.random() * 1000), 0));
-    }
-
     public int getEnemyLimit(){
         return enemyLimit;
     }
@@ -73,5 +71,9 @@ public class Level {
 
     public CopyOnWriteArrayList<Interactable> getInteractables() {
         return tileMap.getInteractables();
+    }
+
+    public CopyOnWriteArrayList<Enemy> getEnemies() {
+        return tileMap.getEnemies();
     }
 }

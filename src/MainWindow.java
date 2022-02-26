@@ -76,13 +76,13 @@ public class MainWindow {
 					canvas.addKeyListener(Controller);    //adding the controller to the Canvas
 					canvas.requestFocusInWindow();   // making sure that the Canvas is in focus so keyboard input will be taking in .
 					startGame = true;
-					gameworld.changeLevel("Fire_Dungeon" , new Point3f(1000,1000,0));
+					gameworld.changeLevel("Field" , new Point3f(1000,1000,0));
 				}
 			});
 
 			//https://stackoverflow.com/questions/4898584/java-using-an-image-as-a-button
 			startMenuButton.setBounds(width / 2 - 170, height / 2 - 40, 340, 80);
-			startMenuButton.setBorder(BorderFactory.createEmptyBorder());
+			startMenuButton.setBorder(null);
 			startMenuButton.setContentAreaFilled(false);
 			frame.add(startMenuButton);
 		}catch (Exception e){

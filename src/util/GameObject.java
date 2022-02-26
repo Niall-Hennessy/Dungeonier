@@ -1,6 +1,8 @@
 package util;
 
+import javax.imageio.ImageIO;
 import java.awt.*;
+import java.io.File;
 
 /*
  * Created by Abraham Campbell on 15/01/2020.
@@ -37,7 +39,7 @@ public class GameObject {
 	protected String direction;
 	private boolean acting;
 	private int maxHealth = 5;
-	private int health = 5;
+	protected int health = 5;
 	private boolean isDead=false;
 	protected Image image;
 	
@@ -48,6 +50,11 @@ public class GameObject {
     public GameObject(String textureLocation,int width,int height,Point3f centre) { 
     	 hasTextured=true;
     	 this.textureLocation=textureLocation;
+    	 try {
+			 this.image = ImageIO.read(new File(this.textureLocation));
+		 }catch (Exception e){
+    	 	System.out.println(e);
+		 }
     	 this.width=width;
 		 this.height=height;
 		 this.centre =centre;
@@ -113,7 +120,6 @@ public class GameObject {
 		}else if(health >= maxHealth)
 			health = maxHealth;
 
-		System.out.println("New Health: "+ health);
 	}
 
 

@@ -4,6 +4,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import Enemy.Enemy;
 import Level.Level;
 import Level.LevelManager;
 import util.*;
@@ -49,7 +50,7 @@ public class Model {
 
 	private LevelManager levelManager = new LevelManager();
 
-	private  CopyOnWriteArrayList<GameObject> EnemiesList  = new CopyOnWriteArrayList<GameObject>();
+	private  CopyOnWriteArrayList<Enemy> EnemiesList  = new CopyOnWriteArrayList<Enemy>();
 	private  CopyOnWriteArrayList<Item> ItemsList  = new CopyOnWriteArrayList<Item>();
 	private  CopyOnWriteArrayList<Interactable> InteractableList  = new CopyOnWriteArrayList<Interactable>();
 	private  CopyOnWriteArrayList<GameObject> BulletList  = new CopyOnWriteArrayList<GameObject>();
@@ -61,7 +62,13 @@ public class Model {
 		PLAY, PAUSE, DEAD
 	}
 
+	private enum SelectedItem{
+		SWORD, FIRE
+	}
+
 	private GameState gameState = GameState.PLAY;
+
+	private SelectedItem selectedItem = SelectedItem.SWORD;
 
 	private int Score=0;
 	private boolean paused;
@@ -80,6 +87,12 @@ public class Model {
 	//Consider changing to enum
 	private int menuItem=0;
 
+	private SwordAttack swordAttack=null;
+
+	private boolean firstCollision = false;
+
+	private Door spawnDoor = null;
+
 	public Model() {
 		//Create Player
 		PlayerOne = new GameObject("gfx/Character/Female/Female 01-1.png", 100, 100, new Point3f(500, 500, 0));
@@ -89,15 +102,6 @@ public class Model {
 		currentLevel = levelManager.getCurrentLevel();
 		CollisionList = currentLevel.getCollisions();
 		iFrames = 0;
-
-
-
-		//0, 48 defines the heart Item
-		Item item;
-		for (int i = 0; i < 5; i++){
-			item = new Item("gfx/objects.png", 100, 100, 0, 48, 4, new Point3f(((float) Math.random() * 4000), ((float) Math.random() * 4000), 0));
-			ItemsList.add(item);
-		}
 
 		try {
 			clip = AudioSystem.getClip();
@@ -133,26 +137,50 @@ public class Model {
 
 		if(iFrames > 0)
 			iFrames--;
+
+		if(swordAttack != null) {
+			swordAttack.countDown();
+			if(swordAttack.getTimer() == 0) {
+				BulletList.remove(swordAttack);
+				swordAttack = null;
+			}
+		}
 		
 		if(gameState == GameState.PLAY) {
 			// this is a way to increment across the array list data structure
 			//see if they hit anything
 			// using enhanced for-loop style as it makes it alot easier both code wise and reading wise too
 			for (GameObject temp : BulletList) {
-				for (GameObject enemy : EnemiesList) {
-					if (Math.abs(temp.getCentre().getX() - enemy.getCentre().getX()) < temp.getWidth()
-							&& Math.abs(temp.getCentre().getY() - enemy.getCentre().getY()) < temp.getHeight()) {
-						EnemiesList.remove(enemy);
+				for (Enemy enemy : EnemiesList) {
+					if (checkColliding(temp.getCentre(), enemy, 50)) {
+						enemy.setDamaged(true);
+						enemy.reduceHealth(1);
+
+						Vector3f vector3f = PlayerOne.getCentre().getLastVector();
+						enemy.getCentre().ApplyVector(vector3f);
+
+						if(enemy.isDead()) {
+							Item itemDrop = enemy.getDrop();
+							if(itemDrop != null)
+								ItemsList.add(itemDrop);
+							EnemiesList.remove(enemy);
+						}
+
 						BulletList.remove(temp);
 					}
 				}
 			}
 
-			for (GameObject temp : EnemiesList) {
+			for (Enemy temp : EnemiesList) {
 			    for (GameObject players : PlayerList) {
+			    	if(checkColliding(temp.getCentre(), players, temp.getDetectionRadius()))
+			    		temp.setDetected(true);
+					else
+						temp.setDetected(false);
+
                     if (checkColliding(players.getCentre(), temp, 100) && iFrames == 0) {
+						iFrames = 120;
                         players.reduceHealth(1);
-                        iFrames = 60;
                     }
                 }
 			}
@@ -169,12 +197,30 @@ public class Model {
 				}
 			}
 
-			for (Door temp : DoorList) {
+
+			boolean wasCollision = false;
+			for (Door door : DoorList) {
 				for (GameObject players : PlayerList) {
-					if (checkColliding(players.getCentre(), temp, 100)) {
-						changeLevel(temp.getDestination(), temp.getDestinationPosition());
+					if (checkColliding(players.getCentre(), door, 100)) {
+						wasCollision = true;
+
+						if(firstCollision){
+							System.out.println(currentLevel.getLevelName());
+							spawnDoor = door;
+							firstCollision = false;
+						}
+
+						if(door == spawnDoor) {
+							continue;
+						}
+
+						changeLevel(door.getDestination(), door.getDestinationPosition());
 					}
 				}
+			}
+			if(!wasCollision){
+				firstCollision = false;
+				spawnDoor = null;
 			}
 
 			for (Collider temp : CollisionList) {
@@ -232,39 +278,51 @@ public class Model {
 	private void enemyLogic() {
 		// TODO Auto-generated method stub
 		if(gameState == GameState.PLAY) {
-			float speed = 1f;
-			for (GameObject temp : EnemiesList) {
-				// Move enemies
+			float speed = 2f;
+			for (Enemy temp : EnemiesList) {
+
+				if(!temp.isDetected())
+					continue;
 
 				//Basic enemy tracking feature
 				int x = (int) (PlayerOne.getCentre().getX() - temp.getCentre().getX());
 				int y = (int) (PlayerOne.getCentre().getY() - temp.getCentre().getY());
 
+				String directionVert=temp.getDirection();
+				String directionHor=temp.getDirection();
+
+				boolean horizontal=false;
+
+				if(Math.abs(x) >= Math.abs(y))
+					horizontal=true;
+
 				if (x < 0) {
 					x = -1;
-					temp.setDirection("right");
+					directionHor = "left";
 				} else if (x > 0) {
 					x = 1;
-					temp.setDirection("left");
+					directionHor = "right";
 				} else
 					x = 0;
 
-				if (y > 0) {
+				if (y > 0.5) {
 					y = -1;
-					temp.setDirection("down");
-				} else if (y < 0) {
+					directionVert = "down";
+				} else if (y < -0.5) {
 					y = 1;
-					temp.setDirection("up");
+					directionVert = "up";
 				} else
 					y = 0;
 
-				temp.getCentre().ApplyVector(new Vector3f(x*speed, y*speed, 0));
-			}
+				if(horizontal)
+					temp.setDirection(directionHor);
+				else
+					temp.setDirection(directionVert);
 
-			if (EnemiesList.size() < currentLevel.getEnemyLimit()) {
-				while (EnemiesList.size() < currentLevel.getEnemyLimit()) {
-					EnemiesList.add(currentLevel.addEnemy());
-				}
+				if(temp.isDamaged())
+					temp.getCentre().ApplyVector(temp.getCentre().getLastVector());
+				else
+					temp.getCentre().ApplyVector(new Vector3f(x*speed, y*speed, 0));
 			}
 		}
 	}
@@ -275,23 +333,25 @@ public class Model {
 		if(gameState == GameState.PLAY) {
 			for (GameObject temp : BulletList) {
 				//check to move them
+				//BulletList.remove(temp);
+				if(false) {
+					if (temp.getDirection() == "up")
+						temp.getCentre().ApplyVector(new Vector3f(0, 6, 0));
+					else if (temp.getDirection() == "right")
+						temp.getCentre().ApplyVector(new Vector3f(6, 0, 0));
+					else if (temp.getDirection() == "left")
+						temp.getCentre().ApplyVector(new Vector3f(-6, 0, 0));
+					else if (temp.getDirection() == "down")
+						temp.getCentre().ApplyVector(new Vector3f(0, -6, 0));
 
-				if (temp.getDirection() == "up")
-					temp.getCentre().ApplyVector(new Vector3f(0, 6, 0));
-				else if (temp.getDirection() == "right")
-					temp.getCentre().ApplyVector(new Vector3f(6, 0, 0));
-				else if (temp.getDirection() == "left")
-					temp.getCentre().ApplyVector(new Vector3f(-6, 0, 0));
-				else if (temp.getDirection() == "down")
-					temp.getCentre().ApplyVector(new Vector3f(0, -6, 0));
+					//see if they hit anything
 
-				//see if they hit anything
-
-				//see if they get to the top of the screen ( remember 0 is the top
-				float y = temp.getCentre().getY();
-				float x = temp.getCentre().getX();
-				if (y <= 0 || y >= size.getHeight() || x <= 0 || x >= size.getWidth()) {
-					//BulletList.remove(temp);
+					//see if they get to the top of the screen ( remember 0 is the top
+					float y = temp.getCentre().getY();
+					float x = temp.getCentre().getX();
+					if (y <= 0 || y >= size.getHeight() || x <= 0 || x >= size.getWidth()) {
+						//BulletList.remove(temp);
+					}
 				}
 			}
 		}
@@ -427,13 +487,34 @@ public class Model {
 
 	private void useItem(){
 		//Add code so that the player is capable of changing Item and then the player item menu whatever
-		swordAttack();
-		//arrowAttack();
+		if(selectedItem == SelectedItem.SWORD)
+			swordAttack();
+		else  if(selectedItem == SelectedItem.FIRE)
+			arrowAttack();
 	}
 
 	//Item Use Methods
-	private void swordAttack(){
-		PlayerOne.setActing(true);
+	private void swordAttack() {
+		if (swordAttack == null){
+			PlayerOne.setActing(true);
+			int x = (int) PlayerOne.getCentre().getX();
+			int y = (int) PlayerOne.getCentre().getY();
+
+			String direction = PlayerOne.getDirection();
+
+			if (direction.equals("up"))
+				y += -100;
+			else if (direction.equals("down"))
+				y += 100;
+			else if (direction.equals("left"))
+				x += -100;
+			else if (direction.equals("right"))
+				x += 100;
+
+			swordAttack = new SwordAttack("res/bullet.png", 50, 50, new Point3f(x, y, 0));
+			swordAttack.setTimer(30);
+			BulletList.add(swordAttack);
+		}
 	}
 
 	private void arrowAttack(){
@@ -446,16 +527,22 @@ public class Model {
 	}
 
 	public void changeLevel(String n, Point3f pos){
+
+		firstCollision = true;
+
+		String previousLevel = currentLevel.getLevelName();
+
 		levelManager.changeLevel(n);
+
 		currentLevel = levelManager.getCurrentLevel();
 
-		//CollisionList.clear();
 		CollisionList = currentLevel.getCollisions();
 
-		//DoorList.clear();
 		DoorList = currentLevel.getDoors();
 
 		InteractableList = currentLevel.getInteractables();
+
+		EnemiesList = currentLevel.getEnemies();
 
 		PlayerOne.setCentre(new Point3f(1000,1000,0));
 
@@ -480,7 +567,7 @@ public class Model {
         return PlayerList;
     }
 
-	public CopyOnWriteArrayList<GameObject> getEnemies() {
+	public CopyOnWriteArrayList<Enemy> getEnemies() {
 		return EnemiesList;
 	}
 
@@ -528,6 +615,8 @@ public class Model {
 		else
 			return false;
 	}
+
+	public int getiFrames(){return iFrames;}
 }
 
 

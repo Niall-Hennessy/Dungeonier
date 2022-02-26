@@ -86,7 +86,11 @@ public class Vector3f {
 	{
 		float LengthOfTheVector=  this.length();
 		return this.byScalar(1.0f/ LengthOfTheVector); 
-	} 
+	}
+
+	public String toString(){
+		return "(X: " + x + ", Y: " + y + ", Z: " + z + ")";
+	}
 	
 	//implement getting the dot product of Vector.Vector and comment what the method does 
 
