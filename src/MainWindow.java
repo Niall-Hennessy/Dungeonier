@@ -10,7 +10,6 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 
 import util.Point3f;
-import util.UnitTests;
 
 /*
  * Created by Abraham Campbell on 15/01/2020.
@@ -43,7 +42,7 @@ public class MainWindow {
 	 private static  JFrame frame = new JFrame("Game");   // Change to the name of your game 
 	 private static   Model gameworld = new Model();
 	 private static   Viewer canvas = new  Viewer( gameworld);
-	 private KeyListener Controller =new Controller()  ; 
+	 private KeyListener Controller =new ControllerKeyboard()  ;
 	 private static   int TargetFPS = 100;
 	 private static boolean startGame= false; 
 	 private   JLabel BackgroundImageForStartMenu ;
@@ -76,7 +75,7 @@ public class MainWindow {
 					canvas.addKeyListener(Controller);    //adding the controller to the Canvas
 					canvas.requestFocusInWindow();   // making sure that the Canvas is in focus so keyboard input will be taking in .
 					startGame = true;
-					gameworld.changeLevel("Fire_Dungeon" , new Point3f(1000,1000,0));
+					gameworld.changeLevel("House" , new Point3f(1000,1000,0));
 				}
 			});
 

@@ -9,5 +9,9 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="jinput-2.0.9" level="project" />
+    <orderEntry type="library" name="jinput-2.0.9-natives-all" level="project" />
+    <orderEntry type="library" name="windows-plugin-2.0.9-natives-windows" level="project" />
+    <orderEntry type="library" name="windows-plugin-2.0.9" level="project" />
   </component>
 </module>

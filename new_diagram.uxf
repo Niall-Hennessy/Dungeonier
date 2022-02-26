@@ -9,17 +9,17 @@
       <w>400</w>
       <h>430</h>
     </coordinates>
-    <panel_attributes>::Controller
+    <panel_attributes>::ControllerKeyboard
 --
 -KeyAPressed = false: boolean
 -KeySPressed = false: boolean
 -KeyDPressed = false: boolean
 -KeyWPressed = false: boolean
 -KeySpacePressed = false: boolean
--instance = new Controller(): Controller
+-instance = new ControllerKeyboard(): ControllerKeyboard
 --
-+Controller(): ctor
-+getInstance(): Controller
++ControllerKeyboard(): ctor
++getInstance(): ControllerKeyboard
 +keyTyped(KeyEvent e): // Key pressed , will keep triggering &#13;
 void
 +keyPressed(KeyEvent e): void
@@ -119,7 +119,7 @@ void
     <panel_attributes>::Model
 --
 -Player: GameObject
--controller = Controller.getInstance(): Controller
+-controller = ControllerKeyboard.getInstance(): ControllerKeyboard
 -EnemiesList = new CopyOnWriteArrayList&lt;GameObject&gt;(): CopyOnWriteArrayList&lt;GameObject&gt;
 -BulletList = new CopyOnWriteArrayList&lt;GameObject&gt;(): CopyOnWriteArrayList&lt;GameObject&gt;
 -Score = 0: int
@@ -223,7 +223,7 @@ void
 -frame = new JFrame("Game"): JFrame
 -gameworld = new Model(): Model
 -canvas = new Viewer(gameworld): Viewer
--Controller = new Controller(): KeyListener
+-ControllerKeyboard = new ControllerKeyboard(): KeyListener
 -TargetFPS = 100: int
 --
 +MainWindow(): ctor
