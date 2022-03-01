@@ -8,10 +8,10 @@ import Enemy.Enemy;
 import Level.Level;
 import Level.LevelManager;
 import util.*;
-import util.item.Chest;
 import util.item.Interactable;
 import util.item.Item;
-import util.item.NPC;
+
+import net.java.games.input.*;
 
 import javax.sound.sampled.*;
 
@@ -46,7 +46,7 @@ public class Model {
 	private  GameObject PlayerOne;
 	private  GameObject PlayerTwo;
 
-	private Controller controller = Controller.getInstance();
+	private ControllerKeyboard controllerKeyboard = ControllerKeyboard.getInstance();
 
 	private LevelManager levelManager = new LevelManager();
 
@@ -59,7 +59,7 @@ public class Model {
 	private CopyOnWriteArrayList<Door> DoorList  = new CopyOnWriteArrayList<Door>();
 
 	private enum GameState{
-		PLAY, PAUSE, DEAD
+		PLAY, PAUSE, DEAD, DIALOG
 	}
 
 	private enum SelectedItem{
@@ -95,7 +95,7 @@ public class Model {
 
 	public Model() {
 		//Create Player
-		PlayerOne = new GameObject("gfx/Character/Female/Female 01-1.png", 100, 100, new Point3f(500, 500, 0));
+		PlayerOne = new GameObject("gfx/character.png", 100, 100, new Point3f(500, 500, 0));
 		PlayerList.add(PlayerOne);
 		paused = false;
 		twoPlayer = false;
@@ -241,11 +241,6 @@ public class Model {
 						Vector3f vector = players.getCentre().getLastVector();
 						vector.setX(-vector.getX());
 						vector.setY(-vector.getY());
-
-						players.getCentre().ApplyVector(vector);
-						if(Controller.getInstance().isKeyEPressed()){
-							temp.interact();
-						}
 					}
 				}
 			}
@@ -277,7 +272,7 @@ public class Model {
 
 	private void enemyLogic() {
 		// TODO Auto-generated method stub
-		if(gameState == GameState.PLAY) {
+		if(gameState == GameState.PLAY && !PlayerOne.isInteracting()) {
 			float speed = 2f;
 			for (Enemy temp : EnemiesList) {
 
@@ -330,7 +325,7 @@ public class Model {
 	private void bulletLogic() {
 		// TODO Auto-generated method stub
 		// move bullets 
-		if(gameState == GameState.PLAY) {
+		if(gameState == GameState.PLAY && !PlayerOne.isInteracting()) {
 			for (GameObject temp : BulletList) {
 				//check to move them
 				//BulletList.remove(temp);
@@ -362,98 +357,98 @@ public class Model {
 		// smoother animation is possible if we make a target position  // done but may try to change things for students  
 		 
 		//check for movement and if you fired a bullet 
-		if(gameState == GameState.PLAY) {
+		if(gameState == GameState.PLAY && !PlayerOne.isInteracting()) {
 			float speed = 2f;
 
-			if (Controller.getInstance().isKeyAPressed()) {
+			if (ControllerKeyboard.getInstance().isKeyAPressed()) {
                 PlayerOne.getCentre().ApplyVector(new Vector3f(-2 * speed, 0, 0));
                 PlayerOne.setDirection("left");
 			}
 
-			if (Controller.getInstance().isKeyDPressed()) {
+			if (ControllerKeyboard.getInstance().isKeyDPressed()) {
                 PlayerOne.getCentre().ApplyVector(new Vector3f(2 * speed, 0, 0));
                 PlayerOne.setDirection("right");
 			}
 
-			if (Controller.getInstance().isKeyWPressed()) {
+			if (ControllerKeyboard.getInstance().isKeyWPressed()) {
                 PlayerOne.getCentre().ApplyVector(new Vector3f(0, 2 * speed, 0));
                 PlayerOne.setDirection("up");
 			}
 
-			if (Controller.getInstance().isKeySPressed()) {
+			if (ControllerKeyboard.getInstance().isKeySPressed()) {
                 PlayerOne.getCentre().ApplyVector(new Vector3f(0, -2 * speed, 0));
                 PlayerOne.setDirection("down");
 			}
 
-			if (Controller.getInstance().isKeyEPressed()) {
-				Controller.getInstance().setKeyEPressed(false);
+			if (ControllerKeyboard.getInstance().isKeyEPressed()) {
+				ControllerKeyboard.getInstance().setKeyEPressed(false);
 				for (Interactable temp : InteractableList) {
 					for (GameObject players : PlayerList) {
 						Point3f point3f = new Point3f(0,0,0);
 						point3f.setX(players.getCentre().getX() - 50);
 						point3f.setY(players.getCentre().getY() - 50);
 						if (checkColliding(point3f, temp, 200)) {
-							temp.interact();
+							temp.interact(players);
 						}
 					}
 				}
 			}
 
-			if (Controller.getInstance().isKeySpacePressed()) {
+			if (ControllerKeyboard.getInstance().isKeySpacePressed()) {
 				if(!PlayerOne.isActing())
 					useItem();
-				Controller.getInstance().setKeySpacePressed(false);
+				ControllerKeyboard.getInstance().setKeySpacePressed(false);
 			}
 
-			if(Controller.getInstance().isKeyEnterPressed() && !twoPlayer){
+			if(ControllerKeyboard.getInstance().isKeyEnterPressed() && !twoPlayer){
 				twoPlayer = true;
 				PlayerTwo = new GameObject("gfx/npc_test.png",50,50,new Point3f(500,500,0));
 				PlayerList.add(PlayerTwo);
 			}
 
-			if (Controller.getInstance().isKeyJPressed() && twoPlayer) {
+			if (ControllerKeyboard.getInstance().isKeyJPressed() && twoPlayer) {
 				PlayerTwo.getCentre().ApplyVector(new Vector3f(-2 * speed, 0, 0));
 				PlayerTwo.setDirection("left");
 			}
 
-			if (Controller.getInstance().isKeyLPressed() && twoPlayer) {
+			if (ControllerKeyboard.getInstance().isKeyLPressed() && twoPlayer) {
 				PlayerTwo.getCentre().ApplyVector(new Vector3f(2 * speed, 0, 0));
 				PlayerTwo.setDirection("right");
 			}
 
-			if (Controller.getInstance().isKeyIPressed() && twoPlayer) {
+			if (ControllerKeyboard.getInstance().isKeyIPressed() && twoPlayer) {
 				PlayerTwo.getCentre().ApplyVector(new Vector3f(0, 2 * speed, 0));
 				PlayerTwo.setDirection("up");
 			}
 
-			if (Controller.getInstance().isKeyKPressed() && twoPlayer) {
+			if (ControllerKeyboard.getInstance().isKeyKPressed() && twoPlayer) {
 				PlayerTwo.getCentre().ApplyVector(new Vector3f(0, -2 * speed, 0));
 				PlayerTwo.setDirection("down");
 			}
 
-			if (Controller.getInstance().isKeyEnterPressed() && twoPlayer) {
+			if (ControllerKeyboard.getInstance().isKeyEnterPressed() && twoPlayer) {
 				CreateBullet(1);
-				Controller.getInstance().setKeyEnterPressed(false);
+				ControllerKeyboard.getInstance().setKeyEnterPressed(false);
 			}
 		}
 		else if(gameState == GameState.PAUSE){
-			if (Controller.getInstance().isKeyAPressed()) {
+			if (ControllerKeyboard.getInstance().isKeyAPressed()) {
 				System.out.println("Left");
 			}
 
-			if (Controller.getInstance().isKeyDPressed()) {
+			if (ControllerKeyboard.getInstance().isKeyDPressed()) {
 				System.out.println("Right");
 			}
 
-			if (Controller.getInstance().isKeyWPressed()) {
+			if (ControllerKeyboard.getInstance().isKeyWPressed()) {
 				System.out.println("UP");
 			}
 
-			if (Controller.getInstance().isKeySPressed()) {
+			if (ControllerKeyboard.getInstance().isKeySPressed()) {
 				System.out.println("Down");
 			}
 
-			if(Controller.getInstance().isKeyEnterPressed()){
+			if(ControllerKeyboard.getInstance().isKeyEnterPressed()){
 				System.out.println("Selecting Button");
 				if(menuItem == 0){
 					try {
@@ -474,23 +469,54 @@ public class Model {
 
 			}
 		}
-		if(Controller.getInstance().isKeyEscPressed())
+		else if(PlayerOne.isInteracting()){
+			if (ControllerKeyboard.getInstance().isKeySpacePressed()) {
+				ControllerKeyboard.getInstance().setKeySpacePressed(false);
+				for (Interactable temp : InteractableList) {
+					for (GameObject players : PlayerList) {
+						Point3f point3f = new Point3f(0,0,0);
+						point3f.setX(players.getCentre().getX() - 50);
+						point3f.setY(players.getCentre().getY() - 50);
+						if (checkColliding(point3f, temp, 200)) {
+							temp.interact(players);
+						}
+					}
+				}
+			}
+
+			if (ControllerKeyboard.getInstance().isKeyEPressed()) {
+				ControllerKeyboard.getInstance().setKeyEPressed(false);
+				for (Interactable temp : InteractableList) {
+					for (GameObject players : PlayerList) {
+						Point3f point3f = new Point3f(0,0,0);
+						point3f.setX(players.getCentre().getX() - 50);
+						point3f.setY(players.getCentre().getY() - 50);
+						if (checkColliding(point3f, temp, 200)) {
+							temp.interact(players);
+						}
+					}
+				}
+			}
+		}
+		if(ControllerKeyboard.getInstance().isKeyEscPressed())
 		{
 			if(gameState == GameState.PLAY)
 				gameState = GameState.PAUSE;
 			else if(gameState == GameState.PAUSE)
 				gameState = GameState.PLAY;
 
-			Controller.getInstance().setKeyEscPressed(false);
+			ControllerKeyboard.getInstance().setKeyEscPressed(false);
 		}
 	}
 
 	private void useItem(){
 		//Add code so that the player is capable of changing Item and then the player item menu whatever
-		if(selectedItem == SelectedItem.SWORD)
+		if(selectedItem == SelectedItem.SWORD) {
 			swordAttack();
-		else  if(selectedItem == SelectedItem.FIRE)
+		}
+		else  if(selectedItem == SelectedItem.FIRE) {
 			arrowAttack();
+		}
 	}
 
 	//Item Use Methods

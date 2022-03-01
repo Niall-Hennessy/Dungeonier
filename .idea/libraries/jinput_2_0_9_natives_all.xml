@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="jinput-2.0.9-natives-all">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/jars/jinput-2.0.9-natives-all.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

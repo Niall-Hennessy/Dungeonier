@@ -42,6 +42,7 @@ public class GameObject {
 	protected int health = 5;
 	private boolean isDead=false;
 	protected Image image;
+	private boolean isInteracting=false;
 	
 	public GameObject() {  
 		
@@ -137,6 +138,12 @@ public class GameObject {
 		else
 			return false;
 	}
+
+	public void setIsInteracting(boolean bool){
+		isInteracting = bool;
+	}
+
+	public boolean isInteracting(){return isInteracting;}
 
 	public boolean isDead(){
 		return isDead;

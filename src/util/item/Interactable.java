@@ -1,5 +1,6 @@
 package util.item;
 
+import util.GameObject;
 import util.Point3f;
 
 public class Interactable extends Item{
@@ -23,6 +24,10 @@ public class Interactable extends Item{
         isInteracted = true;
     }
 
+    public void interact(GameObject player){
+        isInteracted = true;
+    }
+
     public int getAnimationTime(){
         if(animationTime < 40 && isInteracted)
             animationTime++;
@@ -31,5 +36,9 @@ public class Interactable extends Item{
 
     public int getSize(){
         return super.getSize();
+    }
+
+    public String getDialog(){
+        return "";
     }
 }

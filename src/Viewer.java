@@ -13,6 +13,7 @@ import util.GameObject;
 import util.item.Interactable;
 import util.item.Item;
 import util.Point3f;
+import util.item.NPC;
 
 
 /*
@@ -48,7 +49,10 @@ public class Viewer extends JPanel {
 	
 	Model gameworld;// = new Model();
 	Dimension size;
-	 
+
+	String dialog="";
+	int dialogPos=0;
+
 	public Viewer(Model World) {
 		this.gameworld=World;
 		// TODO Auto-generated constructor stub
@@ -163,7 +167,27 @@ public class Viewer extends JPanel {
 
 		int size = item.getSize();
 
-		g.drawImage(item.getImage(), x, y, x + item.getWidth(), y + item.getHeight(), sx1 + currentPositionInAnimation + spacing, sy1, sx1 + currentPositionInAnimation + size + spacing,  sy1 + size, null);
+		String direction = item.getDirection();
+		int offset = 0;
+		if(direction == "down")
+			offset = 0;
+		else if(direction == "left")
+			offset = 32;
+		else if(direction == "right")
+			offset = 64;
+		else
+			offset = 96;
+
+		g.drawImage(item.getImage(), x, y, x + item.getWidth(), y + item.getHeight(), sx1 + currentPositionInAnimation + spacing, sy1 + offset, sx1 + currentPositionInAnimation + size + spacing,  sy1 + size + offset, null);
+
+		if(item.getClass() == NPC.class) {
+			if (item.getDialog() != null) {
+				if (!item.getDialog().equals(dialog)) {
+					dialogPos = 0;
+					dialog = item.getDialog();
+				}
+			}
+		}
 	}
 
 	private void drawCollisions(int x, int y, int width, int height, String texture, Graphics g, String direction) {
@@ -344,6 +368,7 @@ public class Viewer extends JPanel {
 		g.translate(-(c*tileSize * scale), 0);
 
 		drawGui(camera_x, camera_y, player,g);
+		drawDialog(camera_x,camera_y, player, g);
 	}
 
 	private void drawGameOver(Graphics g){
@@ -388,7 +413,34 @@ public class Viewer extends JPanel {
 
 
 		}catch (Exception e){
+			System.out.println(e);
+		}
+	}
 
+	private void drawDialog(int a, int b, GameObject Player, Graphics g) {
+		File TextureToLoad = new File("gfx/font.png");
+		if (!dialog.equals("")) {
+			try {
+				Image myImage = ImageIO.read(TextureToLoad);
+
+				int dialogWidth = 800;
+				int dialogHeight = 400;
+
+				int widthOffset = size.width / 2 - dialogWidth/2;
+				int heightOffset = size.height / 2;
+
+				g.drawImage(myImage, -a + widthOffset, -b + heightOffset, -a + dialogWidth + widthOffset, -b + dialogHeight + heightOffset, 0, 48, 256, 192, null);
+
+				//https://stackoverflow.com/questions/18249592/how-to-change-font-size-in-drawstring-java
+				g.setFont(new Font("TimesRoman", Font.PLAIN, 50));
+
+
+				g.drawString(dialog.substring(0, dialogPos), -a + widthOffset + dialogWidth/20, -b + heightOffset + dialogHeight/4);
+				if(dialogPos < dialog.length())
+					dialogPos++;
+			} catch (Exception e) {
+				System.out.println(e);
+			}
 		}
 	}
 
@@ -398,7 +450,7 @@ public class Viewer extends JPanel {
 		try {
 			Image myImage = ImageIO.read(TextureToLoad); 
 			//64 by 128 
-			 //g.drawImage(myImage, x,y, x+width, y+height, 0 , 0, 63, 127, null);
+			g.drawImage(myImage, x,y, x+width, y+height, 0 , 0, 63, 127, null);
 			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -411,19 +463,19 @@ public class Viewer extends JPanel {
 		File TextureToLoad = new File(texture);  //should work okay on OSX and Linux but check if you have issues depending your eclipse install or if your running this without an IDE
 		try {
 			Image myImage = ImageIO.read(TextureToLoad);
-			int currentPositionInAnimation = (((int) ((CurrentAnimationTime%30)/10))*32);
+			int currentPositionInAnimation = (((int) ((CurrentAnimationTime%40)/10))*16);
 
 			int offset = 0;
 			if(direction == "down")
 				offset = 0;
-			else if(direction == "left")
-				offset = 32;
 			else if(direction == "right")
+				offset = 32;
+			else if(direction == "up")
 				offset = 64;
 			else
 				offset = 96;
 
-			g.drawImage(myImage, x,y, x+width, y+height, currentPositionInAnimation  , offset, currentPositionInAnimation + 32, offset + 32, null);
+			g.drawImage(myImage, x,y, x+width, y+height, currentPositionInAnimation  , offset, currentPositionInAnimation + 16, offset + 32, null);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

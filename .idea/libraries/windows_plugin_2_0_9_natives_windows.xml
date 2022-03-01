@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="windows-plugin-2.0.9-natives-windows">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/jars/windows-plugin-2.0.9-natives-windows.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
