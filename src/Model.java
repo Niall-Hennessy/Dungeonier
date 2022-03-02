@@ -194,6 +194,26 @@ public class Model {
 				}
 			}
 
+			if(swordAttack != null){
+				for (Enemy enemy : EnemiesList) {
+					if(checkColliding(swordAttack.getCentre(), enemy, 100)){
+						enemy.setDamaged(true);
+						enemy.reduceHealth(1);
+
+						Vector3f vector3f = PlayerOne.getCentre().getLastVector();
+						enemy.getCentre().ApplyVector(vector3f);
+
+						if(enemy.isDead()) {
+							Item itemDrop = enemy.getDrop();
+							if(itemDrop != null)
+								ItemsList.add(itemDrop);
+							EnemiesList.remove(enemy);
+						}
+					}
+				}
+				swordAttack = null;
+			}
+
 			for (Enemy temp : EnemiesList) {
 			    for (GameObject players : PlayerList) {
 			    	if(checkColliding(temp.getCentre(), players, temp.getDetectionRadius()))
@@ -228,7 +248,6 @@ public class Model {
 						wasCollision = true;
 
 						if(firstCollision){
-							System.out.println(currentLevel.getLevelName());
 							spawnDoor = door;
 							firstCollision = false;
 						}
@@ -391,7 +410,6 @@ public class Model {
 					}
 				}
 				if(identifier != null){
-					System.out.println(identifier);
 
 					if(identifier == Component.Identifier.Button._0){
 						if(!PlayerOne.isActing())
@@ -454,7 +472,6 @@ public class Model {
 							PlayerOne.getCentre().ApplyVector(new Vector3f(0, 0, 0));
 						}
 					}else{
-						System.out.println("nullify");
 						identifier = null;
 					}
 				}
@@ -685,9 +702,8 @@ public class Model {
 			else if (direction.equals("right"))
 				x += 100;
 
-			swordAttack = new SwordAttack("res/bullet.png", 50, 50, new Point3f(x, y, 0));
+			swordAttack = new SwordAttack("res/bullet.png", 100, 100, new Point3f(x, y, 0));
 			swordAttack.setTimer(30);
-			//BulletList.add(swordAttack);
 		}
 	}
 
@@ -717,6 +733,8 @@ public class Model {
 		InteractableList = currentLevel.getInteractables();
 
 		EnemiesList = currentLevel.getEnemies();
+
+		System.out.println(pos);
 
 		PlayerOne.setCentre(new Point3f(1000,1000,0));
 

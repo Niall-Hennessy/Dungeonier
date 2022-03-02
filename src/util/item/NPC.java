@@ -23,7 +23,17 @@ public class NPC extends Interactable{
     public NPC(String textureLocation, int width, int height, int sx1, int sy1, int numFrames, Point3f centre, int size) {
         super(textureLocation, width, height, sx1, sy1, numFrames, centre, size);
         try {
-            text = new File("Texts/text.txt.txt");
+            text = new File("Texts/GuardText.txt.txt");
+            fr = new FileReader(text);
+        }catch (Exception e){
+            System.out.println(e);
+        }
+    }
+
+    public NPC(String textureLocation, int width, int height, int sx1, int sy1, int numFrames, Point3f centre, int size, String textInput) {
+        super(textureLocation, width, height, sx1, sy1, numFrames, centre, size);
+        try {
+            this.text = new File("Texts/" + textInput + ".txt");
             fr = new FileReader(text);
         }catch (Exception e){
             System.out.println(e);

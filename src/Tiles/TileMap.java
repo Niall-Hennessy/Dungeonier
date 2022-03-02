@@ -176,6 +176,7 @@ public class TileMap {
 
             Point3f point3f = new Point3f();
 
+            //Get Doorways
             if(document.getChildNodes().item(0).getChildNodes().item(item) != null) {
 
                 //System.out.println(document.getChildNodes().item(0).getChildNodes().item(item).getChildNodes().item(1).getAttributes().item(0));
@@ -196,6 +197,7 @@ public class TileMap {
                 }
             }
 
+            //Get Colliders
             item=11;
             if(document.getChildNodes().item(0).getChildNodes().item(item) != null) {
 
@@ -213,6 +215,7 @@ public class TileMap {
                 }
             }
 
+            //Get Interactables
             item=13;
             if(document.getChildNodes().item(0).getChildNodes().item(item) != null) {
 
@@ -221,12 +224,22 @@ public class TileMap {
                 for(int i = 1; i < len; i+=2) {
                     Node temp = document.getChildNodes().item(0).getChildNodes().item(item).getChildNodes().item(i);
 
+                    String text = temp.getChildNodes().item(1).getChildNodes().item(1).getAttributes().item(1).toString().split("\"")[1];
+
                     String[] type = temp.getAttributes().item(1).toString().split("\"")[1].split("/");
                     int pos_x = (int) Float.parseFloat(temp.getAttributes().item(2).toString().split("\"")[1]) * 5;
                     int pos_y = (int) Float.parseFloat(temp.getAttributes().item(3).toString().split("\"")[1]) * 5;
 
+                    System.out.println(type[1]);
+
                     if (type[0].equals("NPC")) {
-                        interactables.add(new NPC("gfx/Character/" + type[1] + "/" + type[2] + ".png", 100, 100, 0, 0, 3, new Point3f(pos_x, pos_y, 0), 32));
+                        System.out.println(text);
+
+                        if(text == null)
+                            interactables.add(new NPC("gfx/Character/" + type[1] + "/" + type[2] + ".png", 100, 100, 0, 0, 3, new Point3f(pos_x, pos_y, 0), 32));
+                        else
+                            interactables.add(new NPC("gfx/Character/" + type[1] + "/" + type[2] + ".png", 100, 100, 0, 0, 3, new Point3f(pos_x, pos_y, 0), 32, text));
+
                     }
                     else if (type[0].equals("Chest")) {
                         interactables.add(new Chest("gfx/Super_Retro_World_free/animation/chest_002.png", 100, 100, 0, 16, 1, new Point3f(pos_x, pos_y, 0), 16));

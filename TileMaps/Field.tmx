@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.5" tiledversion="1.7.2" orientation="orthogonal" renderorder="right-down" width="50" height="50" tilewidth="16" tileheight="16" infinite="0" nextlayerid="9" nextobjectid="58">
+<map version="1.8" tiledversion="1.8.2" orientation="orthogonal" renderorder="right-down" width="50" height="50" tilewidth="16" tileheight="16" infinite="0" nextlayerid="9" nextobjectid="58">
  <tileset firstgid="1" source="../../GameDev.tsx"/>
  <layer id="1" name="Base" width="50" height="50">
   <data encoding="csv">
@@ -171,7 +171,7 @@
   </object>
   <object id="33" type="Town" x="783.5" y="632.091" width="16" height="47.8182">
    <properties>
-    <property name="SpawnPos" value="100,100"/>
+    <property name="SpawnPos" value="30,700"/>
    </properties>
   </object>
  </objectgroup>
