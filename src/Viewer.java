@@ -239,12 +239,12 @@ public class Viewer extends JPanel {
 
 		if(camera_x>0 && tileMap.getMapWidth() == 50)
 			camera_x = 0;
-		else if(camera_x<-size.width/2 - 180 && tileMap.getMapWidth() == 50)
+		else if(camera_x<-size.width/2 - 180 && tileMap.getMapWidth() != 50)
 			camera_x = -size.width/2 - 180;
 
 		if(camera_y>0 && tileMap.getMapWidth() == 50)
 			camera_y = 0;
-		else if(camera_y<-size.height*2 + 225 && tileMap.getMapHeight() == 50)
+		else if(camera_y<-size.height*2 + 225 && tileMap.getMapHeight() != 50)
 			camera_y = -size.height*2 + 225;
 
 		g.translate(camera_x, camera_y);

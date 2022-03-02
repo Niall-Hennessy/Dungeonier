@@ -1,7 +1,7 @@
 <component name="libraryTable">
-  <library name="windows-plugin-2.0.9">
+  <library name="jutils-1.0.0">
     <CLASSES>
-      <root url="jar://$USER_HOME$/Downloads/windows-plugin-2.0.9.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../Controller_jars_and_co/jutils-1.0.0.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

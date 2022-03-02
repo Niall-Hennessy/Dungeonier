@@ -8,6 +8,9 @@ import Enemy.Enemy;
 import Level.Level;
 import Level.LevelManager;
 import Projectile.Fireball;
+import net.java.games.input.Component;
+import net.java.games.input.Event;
+import net.java.games.input.EventQueue;
 import util.*;
 import util.item.Interactable;
 import util.item.Item;
@@ -48,6 +51,8 @@ public class Model {
 	private  GameObject PlayerTwo;
 
 	private ControllerKeyboard controllerKeyboard = ControllerKeyboard.getInstance();
+	private Controller[] controllers = ControllerEnvironment.getDefaultEnvironment().getControllers();
+	private Controller controllerGamepad = null;
 
 	private LevelManager levelManager = new LevelManager();
 
@@ -96,6 +101,10 @@ public class Model {
 
 	private boolean restart=false;
 
+	private Component.Identifier identifier;
+
+	private float direction=0;
+
 	//FLAGS
 	private boolean hasFireball = false;
 
@@ -110,6 +119,12 @@ public class Model {
 		currentLevel = levelManager.getCurrentLevel();
 		CollisionList = currentLevel.getCollisions();
 		iFrames = 0;
+
+		for(int i=0; i<controllers.length; i++){
+			if (controllers[i].getType() == Controller.Type.STICK) {
+				controllerGamepad = controllers[i];
+			}
+		}
 
 		try {
 			clip = AudioSystem.getClip();
@@ -357,6 +372,74 @@ public class Model {
 		//check for movement and if you fired a bullet 
 		if(gameState == GameState.PLAY && !PlayerOne.isInteracting()) {
 			float speed = 2f;
+
+			if(controllerGamepad != null){
+				controllerGamepad.poll();
+
+				Event event = new Event();
+				EventQueue eventQueue = controllerGamepad.getEventQueue();
+
+				eventQueue.getNextEvent(event);
+				Component component = event.getComponent();
+
+				if(component != null) {
+					identifier = component.getIdentifier();
+					if(identifier == Component.Identifier.Axis.POV){
+						direction = component.getPollData() * 360;
+					}
+				}
+				if(identifier != null){
+
+
+					if(identifier == Component.Identifier.Button._0){
+						if(!PlayerOne.isActing())
+							useItem();
+					}
+
+					if(identifier == Component.Identifier.Button._1){
+						for (Interactable temp : InteractableList) {
+							for (GameObject players : PlayerList) {
+								Point3f point3f = new Point3f(0,0,0);
+								point3f.setX(players.getCentre().getX() - 50);
+								point3f.setY(players.getCentre().getY() - 50);
+								if (checkColliding(point3f, temp, 200)) {
+									temp.interact(players);
+								}
+							}
+						}
+					}
+
+					if (identifier == Component.Identifier.Axis.POV) {
+						if(direction == 45){
+							PlayerOne.getCentre().ApplyVector(new Vector3f(-2 * speed, 2 * speed, 0));
+							PlayerOne.setDirection("up");
+						}else if(direction == 90){
+							PlayerOne.getCentre().ApplyVector(new Vector3f(0, 2 * speed, 0));
+							PlayerOne.setDirection("up");
+						}else if(direction == 135){
+							PlayerOne.getCentre().ApplyVector(new Vector3f(2 * speed, 2 * speed, 0));
+							PlayerOne.setDirection("up");
+						}else if(direction == 180){
+							PlayerOne.getCentre().ApplyVector(new Vector3f(2 * speed, 0, 0));
+							PlayerOne.setDirection("right");
+						}else if(direction == 225){
+							PlayerOne.getCentre().ApplyVector(new Vector3f(2 * speed, -2 * speed, 0));
+							PlayerOne.setDirection("down");
+						}else if(direction == 270){
+							PlayerOne.getCentre().ApplyVector(new Vector3f(0, -2 * speed, 0));
+							PlayerOne.setDirection("down");
+						}else if(direction == 315){
+							PlayerOne.getCentre().ApplyVector(new Vector3f(-2 * speed, -2 * speed, 0));
+							PlayerOne.setDirection("down");
+						}else if(direction == 360){
+							PlayerOne.getCentre().ApplyVector(new Vector3f(-2 * speed, 0, 0));
+							PlayerOne.setDirection("left");
+						}else{
+							PlayerOne.getCentre().ApplyVector(new Vector3f(0, 0, 0));
+						}
+					}
+				}
+			}
 
 			if (ControllerKeyboard.getInstance().isKeyAPressed()) {
                 PlayerOne.getCentre().ApplyVector(new Vector3f(-2 * speed, 0, 0));
