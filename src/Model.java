@@ -386,14 +386,30 @@ public class Model {
 					identifier = component.getIdentifier();
 					if(identifier == Component.Identifier.Axis.POV){
 						direction = component.getPollData() * 360;
+					}else if(component.getPollData() == 0){
+						identifier = null;
 					}
 				}
 				if(identifier != null){
-
+					System.out.println(identifier);
 
 					if(identifier == Component.Identifier.Button._0){
 						if(!PlayerOne.isActing())
 							useItem();
+					}
+
+					if(identifier == Component.Identifier.Button._4){
+						if(selectedItem == SelectedItem.SWORD && hasFireball)
+							selectedItem = SelectedItem.FIRE;
+						else if(selectedItem == SelectedItem.FIRE)
+							selectedItem = SelectedItem.SWORD;
+					}
+
+					if(identifier == Component.Identifier.Button._5){
+						if(selectedItem == SelectedItem.SWORD && hasFireball)
+							selectedItem = SelectedItem.FIRE;
+						else if(selectedItem == SelectedItem.FIRE)
+							selectedItem = SelectedItem.SWORD;
 					}
 
 					if(identifier == Component.Identifier.Button._1){
@@ -437,6 +453,9 @@ public class Model {
 						}else{
 							PlayerOne.getCentre().ApplyVector(new Vector3f(0, 0, 0));
 						}
+					}else{
+						System.out.println("nullify");
+						identifier = null;
 					}
 				}
 			}
@@ -565,6 +584,40 @@ public class Model {
 				restart = true;
 			}
 		}else if(PlayerOne.isInteracting()){
+
+			if(controllerGamepad != null){
+				controllerGamepad.poll();
+
+				Event event = new Event();
+				EventQueue eventQueue = controllerGamepad.getEventQueue();
+
+				eventQueue.getNextEvent(event);
+				Component component = event.getComponent();
+
+				if(component != null) {
+					identifier = component.getIdentifier();
+					if(component.getPollData() == 0){
+						identifier = null;
+					}
+				}
+				if(identifier != null){
+					if(identifier == Component.Identifier.Button._1){
+						for (Interactable temp : InteractableList) {
+							for (GameObject players : PlayerList) {
+								Point3f point3f = new Point3f(0,0,0);
+								point3f.setX(players.getCentre().getX() - 50);
+								point3f.setY(players.getCentre().getY() - 50);
+								if (checkColliding(point3f, temp, 200)) {
+									System.out.println("Interact");
+									temp.interact(players);
+								}
+							}
+						}
+					}
+					identifier=null;
+				}
+			}
+
 			if (ControllerKeyboard.getInstance().isKeySpacePressed()) {
 				ControllerKeyboard.getInstance().setKeySpacePressed(false);
 				for (Interactable temp : InteractableList) {
@@ -684,7 +737,8 @@ public class Model {
 	}
 
 	private void CreateBullet(int n) {
-		BulletList.add(new Fireball("gfx/objects.png",50,100,new Point3f(PlayerOne.getCentre().getX()+PlayerOne.getWidth()/2 - 25,PlayerOne.getCentre().getY() + PlayerOne.getHeight()/2 - 50,0.0f),PlayerList.get(0).getDirection()));
+		if(BulletList.size() == 0)
+			   BulletList.add(new Fireball("gfx/objects.png",50,100,new Point3f(PlayerOne.getCentre().getX()+PlayerOne.getWidth()/2 - 25,PlayerOne.getCentre().getY() + PlayerOne.getHeight()/2 - 50,0.0f),PlayerList.get(0).getDirection()));
 	}
 
     public CopyOnWriteArrayList<GameObject> getPlayers() {
