@@ -133,9 +133,12 @@ public class MainWindow {
 		    while (FrameCheck > System.currentTimeMillis()){}
 			
 			
-			if(startGame)
-			{
+			if(startGame){
 			    gameloop();
+			}
+
+			if(gameworld.restart()){
+				//Reset the game somehow
 			}
 
 			//UNIT test to see if framerate matches

@@ -38,6 +38,8 @@ public class ControllerKeyboard implements KeyListener {
 	   private static boolean KeyKPressed= false;
 	   private static boolean KeyLPressed= false;
 	   private static boolean KeyIPressed= false;
+	   private static boolean Key1Pressed= false;
+	   private static boolean Key2Pressed= false;
 	   private static boolean KeySpacePressed= false;
 	   private static boolean KeyEnterPressed= false;
 	   private static boolean KeyEscPressed= false;
@@ -71,7 +73,9 @@ public class ControllerKeyboard implements KeyListener {
 			case 'k':setKeyKPressed(true);break;
 			case 'l':setKeyLPressed(true);break;
 			case 'i':setKeyIPressed(true);break;
-			case ' ':setKeySpacePressed(true);break;   
+			case '1':setKey1Pressed(true);break;
+			case '2':setKey2Pressed(true);break;
+			case ' ':setKeySpacePressed(true);break;
 		    default:
 				if((int)e.getKeyChar() == 27)
 					setKeyEscPressed(true);
@@ -98,6 +102,8 @@ public class ControllerKeyboard implements KeyListener {
 			case 'k':setKeyKPressed(false);break;
 			case 'l':setKeyLPressed(false);break;
 			case 'i':setKeyIPressed(false);break;
+			case '1':setKey1Pressed(false);break;
+			case '2':setKey2Pressed(false);break;
 			case ' ':setKeySpacePressed(false);break;
 			default:
 				if((int)e.getKeyChar() == 27)
@@ -197,6 +203,23 @@ public class ControllerKeyboard implements KeyListener {
 		KeyIPressed = keyIPressed;
 	}
 
+	public boolean isKey1Pressed() {
+		return Key1Pressed;
+	}
+
+
+	public void setKey1Pressed(boolean key1Pressed) {
+		Key1Pressed = key1Pressed;
+	}
+
+	public boolean isKey2Pressed() {
+		return Key2Pressed;
+	}
+
+
+	public void setKey2Pressed(boolean key2Pressed) {
+		Key2Pressed = key2Pressed;
+	}
 
 	public boolean isKeySpacePressed() {
 		return KeySpacePressed;

@@ -7,6 +7,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import Enemy.Enemy;
 import Level.Level;
 import Level.LevelManager;
+import Projectile.Fireball;
 import util.*;
 import util.item.Interactable;
 import util.item.Item;
@@ -53,16 +54,16 @@ public class Model {
 	private  CopyOnWriteArrayList<Enemy> EnemiesList  = new CopyOnWriteArrayList<Enemy>();
 	private  CopyOnWriteArrayList<Item> ItemsList  = new CopyOnWriteArrayList<Item>();
 	private  CopyOnWriteArrayList<Interactable> InteractableList  = new CopyOnWriteArrayList<Interactable>();
-	private  CopyOnWriteArrayList<GameObject> BulletList  = new CopyOnWriteArrayList<GameObject>();
+	private  CopyOnWriteArrayList<Fireball> BulletList  = new CopyOnWriteArrayList<Fireball>();
     private  CopyOnWriteArrayList<GameObject> PlayerList  = new CopyOnWriteArrayList<GameObject>();
 	private CopyOnWriteArrayList<Collider> CollisionList  = new CopyOnWriteArrayList<Collider>();
 	private CopyOnWriteArrayList<Door> DoorList  = new CopyOnWriteArrayList<Door>();
 
-	private enum GameState{
+	public enum GameState{
 		PLAY, PAUSE, DEAD, DIALOG
 	}
 
-	private enum SelectedItem{
+	public enum SelectedItem{
 		SWORD, FIRE
 	}
 
@@ -92,6 +93,13 @@ public class Model {
 	private boolean firstCollision = false;
 
 	private Door spawnDoor = null;
+
+	private boolean restart=false;
+
+	//FLAGS
+	private boolean hasFireball = false;
+
+
 
 	public Model() {
 		//Create Player
@@ -150,7 +158,7 @@ public class Model {
 			// this is a way to increment across the array list data structure
 			//see if they hit anything
 			// using enhanced for-loop style as it makes it alot easier both code wise and reading wise too
-			for (GameObject temp : BulletList) {
+			for (Fireball temp : BulletList) {
 				for (Enemy enemy : EnemiesList) {
 					if (checkColliding(temp.getCentre(), enemy, 50)) {
 						enemy.setDamaged(true);
@@ -326,34 +334,24 @@ public class Model {
 		// TODO Auto-generated method stub
 		// move bullets 
 		if(gameState == GameState.PLAY && !PlayerOne.isInteracting()) {
-			for (GameObject temp : BulletList) {
-				//check to move them
-				//BulletList.remove(temp);
-				if(false) {
-					if (temp.getDirection() == "up")
-						temp.getCentre().ApplyVector(new Vector3f(0, 6, 0));
-					else if (temp.getDirection() == "right")
-						temp.getCentre().ApplyVector(new Vector3f(6, 0, 0));
-					else if (temp.getDirection() == "left")
-						temp.getCentre().ApplyVector(new Vector3f(-6, 0, 0));
-					else if (temp.getDirection() == "down")
-						temp.getCentre().ApplyVector(new Vector3f(0, -6, 0));
+			for (Fireball temp : BulletList) {
 
-					//see if they hit anything
+				if(temp.tick() == 0)
+					BulletList.remove(temp);
 
-					//see if they get to the top of the screen ( remember 0 is the top
-					float y = temp.getCentre().getY();
-					float x = temp.getCentre().getX();
-					if (y <= 0 || y >= size.getHeight() || x <= 0 || x >= size.getWidth()) {
-						//BulletList.remove(temp);
-					}
-				}
+				if (temp.getDirection() == "up")
+					temp.getCentre().ApplyVector(new Vector3f(0, 6, 0));
+				else if (temp.getDirection() == "right")
+					temp.getCentre().ApplyVector(new Vector3f(6, 0, 0));
+				else if (temp.getDirection() == "left")
+					temp.getCentre().ApplyVector(new Vector3f(-6, 0, 0));
+				else if (temp.getDirection() == "down")
+					temp.getCentre().ApplyVector(new Vector3f(0, -6, 0));
 			}
 		}
 	}
 
 	private void playerLogic() {
-		
 		// smoother animation is possible if we make a target position  // done but may try to change things for students  
 		 
 		//check for movement and if you fired a bullet 
@@ -392,6 +390,16 @@ public class Model {
 						}
 					}
 				}
+			}
+
+			if(ControllerKeyboard.getInstance().isKey1Pressed()){
+				selectedItem = SelectedItem.SWORD;
+				ControllerKeyboard.getInstance().setKey1Pressed(false);
+			}
+
+			if(ControllerKeyboard.getInstance().isKey2Pressed() && hasFireball){
+				selectedItem = SelectedItem.FIRE;
+				ControllerKeyboard.getInstance().setKey2Pressed(false);
 			}
 
 			if (ControllerKeyboard.getInstance().isKeySpacePressed()) {
@@ -468,8 +476,12 @@ public class Model {
 				}
 
 			}
-		}
-		else if(PlayerOne.isInteracting()){
+		}else if(gameState == GameState.DEAD){
+			if(ControllerKeyboard.getInstance().isKeySpacePressed()){
+				System.out.println("Game State is DEAD");
+				restart = true;
+			}
+		}else if(PlayerOne.isInteracting()){
 			if (ControllerKeyboard.getInstance().isKeySpacePressed()) {
 				ControllerKeyboard.getInstance().setKeySpacePressed(false);
 				for (Interactable temp : InteractableList) {
@@ -515,7 +527,7 @@ public class Model {
 			swordAttack();
 		}
 		else  if(selectedItem == SelectedItem.FIRE) {
-			arrowAttack();
+			fireballAttack();
 		}
 	}
 
@@ -539,13 +551,13 @@ public class Model {
 
 			swordAttack = new SwordAttack("res/bullet.png", 50, 50, new Point3f(x, y, 0));
 			swordAttack.setTimer(30);
-			BulletList.add(swordAttack);
+			//BulletList.add(swordAttack);
 		}
 	}
 
-	private void arrowAttack(){
+	private void fireballAttack(){
 		CreateBullet(1);
-		PlayerOne.setActing(true);
+		//PlayerOne.setActing(true);
 	}
 
 	private void togglePauseMenu(boolean visible){
@@ -572,6 +584,9 @@ public class Model {
 
 		PlayerOne.setCentre(new Point3f(1000,1000,0));
 
+		if(currentLevel.getLevelName().equals("Fire_Dungeon"))
+			hasFireball=true;
+
 		try {
 			clip.stop();
 			clip.flush();
@@ -586,7 +601,7 @@ public class Model {
 	}
 
 	private void CreateBullet(int n) {
-		BulletList.add(new GameObject("res/Bullet.png",50,100,new Point3f(PlayerOne.getCentre().getX()+PlayerOne.getWidth()/2 - 25,PlayerOne.getCentre().getY() + PlayerOne.getHeight()/2 - 50,0.0f),PlayerList.get(0).getDirection()));
+		BulletList.add(new Fireball("gfx/objects.png",50,100,new Point3f(PlayerOne.getCentre().getX()+PlayerOne.getWidth()/2 - 25,PlayerOne.getCentre().getY() + PlayerOne.getHeight()/2 - 50,0.0f),PlayerList.get(0).getDirection()));
 	}
 
     public CopyOnWriteArrayList<GameObject> getPlayers() {
@@ -605,7 +620,7 @@ public class Model {
 		return InteractableList;
 	}
 	
-	public CopyOnWriteArrayList<GameObject> getBullets() {
+	public CopyOnWriteArrayList<Fireball> getBullets() {
 		return BulletList;
 	}
 
@@ -643,6 +658,12 @@ public class Model {
 	}
 
 	public int getiFrames(){return iFrames;}
+
+	public SelectedItem getSelectedItem(){return selectedItem;}
+
+	public GameState getGameState(){return gameState;}
+
+	public boolean restart(){return restart;}
 }
 
 

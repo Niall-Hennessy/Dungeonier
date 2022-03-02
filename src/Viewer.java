@@ -325,9 +325,7 @@ public class Viewer extends JPanel {
 
 		gameworld.getBullets().forEach((temp) ->
 		{
-			drawBullet((int) temp.getCentre().getX(), (int) temp.getCentre().getY(), (int) temp.getWidth(), (int) temp.getHeight(), temp.getTexture(),g);
-			Fireball fireball = new Fireball();
-			fireball.drawProjectile();
+			drawBullet((int) temp.getCentre().getX(), (int) temp.getCentre().getY(), (int) temp.getWidth(), (int) temp.getHeight(), temp.getTexture(),temp.getDirection(),g);
 		});
 
 		gameworld.getPlayers().forEach((temp) ->
@@ -379,7 +377,7 @@ public class Viewer extends JPanel {
 			Image gameOverImage = ImageIO.read(gameOver);
 
 			g.fillRect(0,0,size.width,size.height);
-			g.drawImage(gameOverImage,size.width/2 - 50,size.height/2 - 250, 1000,500, null);
+			g.drawImage(gameOverImage,size.width/2 - 500,size.height/2 - 250, 1000,500, null);
 		}
 		catch (Exception e){
 			System.out.println(e);
@@ -389,6 +387,7 @@ public class Viewer extends JPanel {
 	private void drawGui(int a, int b, GameObject Player, Graphics g){
 		File TextureToLoad = new File("gfx/objects.png");
 		try {
+
 			Image myImage = ImageIO.read(TextureToLoad);
 			int x = 64;
 			int y = 0;
@@ -406,10 +405,22 @@ public class Viewer extends JPanel {
 			int s=96;
 			g.drawImage(myImage, -a,-b+100,-a+200,-b+300, 0,s,32,s+32,null);
 
+			if(gameworld.getSelectedItem() == Model.SelectedItem.SWORD){
+				s=64;
+				int t=32;
+				g.drawImage(myImage, -a+50,-b+150,-a+150,-b+250, t,s,t+16,s+16,null);
+
+				s=80;
+				t=16;
+				g.drawImage(myImage, -a+70,-b+180,-a+130,-b+220, t,s,t+16,s+16,null);
+			}else if(gameworld.getSelectedItem() == Model.SelectedItem.FIRE){
+				s=48;
+				int t=64;
+				g.drawImage(myImage, -a+50,-b+150,-a+150,-b+250, t,s,t+16,s+16,null);
+			}
+
 			//Draw the Selected Item
-			s=48;
-			int t=64;
-			g.drawImage(myImage, -a+50,-b+150,-a+150,-b+250, t,s,t+16,s+16,null);
+
 
 
 		}catch (Exception e){
@@ -444,14 +455,19 @@ public class Viewer extends JPanel {
 		}
 	}
 
-	private void drawBullet(int x, int y, int width, int height, String texture,Graphics g)
+	private void drawBullet(int x, int y, int width, int height, String texture, String direction, Graphics g)
 	{
 		File TextureToLoad = new File(texture);  //should work okay on OSX and Linux but check if you have issues depending your eclipse install or if your running this without an IDE 
 		try {
-			Image myImage = ImageIO.read(TextureToLoad); 
-			//64 by 128 
-			g.drawImage(myImage, x,y, x+width, y+height, 0 , 0, 63, 127, null);
-			
+			Image myImage = ImageIO.read(TextureToLoad);
+			int currentPositionInAnimation = (((int) (CurrentAnimationTime%7))*16);
+			//64 by 128
+			int s=48;
+			int t=64;
+
+			System.out.println(direction);
+
+			g.drawImage(myImage, x, y,x+width,y+height, t+currentPositionInAnimation,s,t+currentPositionInAnimation+16,s+16,null);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
