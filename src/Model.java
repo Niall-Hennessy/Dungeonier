@@ -12,8 +12,7 @@ import net.java.games.input.Component;
 import net.java.games.input.Event;
 import net.java.games.input.EventQueue;
 import util.*;
-import util.item.Interactable;
-import util.item.Item;
+import util.item.*;
 
 import net.java.games.input.*;
 
@@ -107,6 +106,8 @@ public class Model {
 
 	//FLAGS
 	private boolean hasFireball = false;
+	private boolean hasSword = false;
+	private boolean hasLife = false;
 
 
 
@@ -130,7 +131,7 @@ public class Model {
 			clip = AudioSystem.getClip();
 			AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File("sound/awesomeness.wav"));
 			clip.open(audioInputStream);
-			clip.start();
+			clip.loop(Clip.LOOP_CONTINUOUSLY);
 		} catch (Exception e) {
 			System.out.println("Caught Exception: " + e);
 		}
@@ -240,34 +241,33 @@ public class Model {
 				}
 			}
 
-
-			boolean wasCollision = false;
+			boolean changeLevel = false;
+			String des=null;
+			Point3f desPos=null;
+			//boolean wasCollision = false;
 			for (Door door : DoorList) {
 				for (GameObject players : PlayerList) {
 					if (checkColliding(players.getCentre(), door, 100)) {
-						wasCollision = true;
-
-						if(firstCollision){
-							spawnDoor = door;
-							firstCollision = false;
-						}
-
-						if(door == spawnDoor) {
-							continue;
-						}
-
-						changeLevel(door.getDestination(), door.getDestinationPosition());
+						changeLevel = true;
+						des = door.getDestination();
+						desPos = door.getDestinationPosition();
 					}
 				}
 			}
-			if(!wasCollision){
+			if(changeLevel)
+				changeLevel(des, desPos);
+
+			/*if(!wasCollision){
 				firstCollision = false;
 				spawnDoor = null;
-			}
+			}*/
 
 			for (Collider temp : CollisionList) {
 				for (GameObject players : PlayerList) {
-					if(checkColliding(players.getCentre(), temp, 100)) {
+					Point3f point3f = new Point3f(players.getCentre().getX(), players.getCentre().getY(), 0);
+					point3f.setX(point3f.getX()+PlayerOne.getWidth()/4);
+					point3f.setY(point3f.getY()+PlayerOne.getHeight()/4);
+					if(checkColliding(point3f, temp, 75)) {
 						Vector3f vector = players.getCentre().getLastVector();
 						vector.setX(-vector.getX());
 						vector.setY(-vector.getY());
@@ -278,11 +278,19 @@ public class Model {
 			}
 
 			for (Interactable temp : InteractableList) {
+				if(temp.getClass() == Fire.class)
+					hasFireball = ((Fire) temp).isHasFire();
+				else if(temp.getClass() == Sword.class)
+					hasSword = ((Sword) temp).isHasSword();
+				else if(temp.getClass() == Life.class)
+					hasLife = ((Life) temp).isHasLife();
 				for (GameObject players : PlayerList) {
 					if (checkColliding(players.getCentre(), temp, 100)) {
 						Vector3f vector = players.getCentre().getLastVector();
 						vector.setX(-vector.getX());
 						vector.setY(-vector.getY());
+
+						players.getCentre().ApplyVector(vector);
 					}
 				}
 			}
@@ -416,6 +424,10 @@ public class Model {
 							useItem();
 					}
 
+					if(identifier == Component.Identifier.Button._9){
+					}
+
+
 					if(identifier == Component.Identifier.Button._4){
 						if(selectedItem == SelectedItem.SWORD && hasFireball)
 							selectedItem = SelectedItem.FIRE;
@@ -437,6 +449,8 @@ public class Model {
 								point3f.setX(players.getCentre().getX() - 50);
 								point3f.setY(players.getCentre().getY() - 50);
 								if (checkColliding(point3f, temp, 200)) {
+									if(temp.getTexture().equals("gfx/Character/Female/Female 06-1.png") && hasFireball && hasLife && hasSword)
+										((NPC)temp).setText("QueenVictory");
 									temp.interact(players);
 								}
 							}
@@ -526,57 +540,21 @@ public class Model {
 					useItem();
 				ControllerKeyboard.getInstance().setKeySpacePressed(false);
 			}
-
-			if(ControllerKeyboard.getInstance().isKeyEnterPressed() && !twoPlayer){
-				twoPlayer = true;
-				PlayerTwo = new GameObject("gfx/npc_test.png",50,50,new Point3f(500,500,0));
-				PlayerList.add(PlayerTwo);
-			}
-
-			if (ControllerKeyboard.getInstance().isKeyJPressed() && twoPlayer) {
-				PlayerTwo.getCentre().ApplyVector(new Vector3f(-2 * speed, 0, 0));
-				PlayerTwo.setDirection("left");
-			}
-
-			if (ControllerKeyboard.getInstance().isKeyLPressed() && twoPlayer) {
-				PlayerTwo.getCentre().ApplyVector(new Vector3f(2 * speed, 0, 0));
-				PlayerTwo.setDirection("right");
-			}
-
-			if (ControllerKeyboard.getInstance().isKeyIPressed() && twoPlayer) {
-				PlayerTwo.getCentre().ApplyVector(new Vector3f(0, 2 * speed, 0));
-				PlayerTwo.setDirection("up");
-			}
-
-			if (ControllerKeyboard.getInstance().isKeyKPressed() && twoPlayer) {
-				PlayerTwo.getCentre().ApplyVector(new Vector3f(0, -2 * speed, 0));
-				PlayerTwo.setDirection("down");
-			}
-
-			if (ControllerKeyboard.getInstance().isKeyEnterPressed() && twoPlayer) {
-				CreateBullet(1);
-				ControllerKeyboard.getInstance().setKeyEnterPressed(false);
-			}
 		}
 		else if(gameState == GameState.PAUSE){
 			if (ControllerKeyboard.getInstance().isKeyAPressed()) {
-				System.out.println("Left");
 			}
 
 			if (ControllerKeyboard.getInstance().isKeyDPressed()) {
-				System.out.println("Right");
 			}
 
 			if (ControllerKeyboard.getInstance().isKeyWPressed()) {
-				System.out.println("UP");
 			}
 
 			if (ControllerKeyboard.getInstance().isKeySPressed()) {
-				System.out.println("Down");
 			}
 
-			if(ControllerKeyboard.getInstance().isKeyEnterPressed()){
-				System.out.println("Selecting Button");
+			if(false){
 				if(menuItem == 0){
 					try {
 						File myObj = new File("SaveFiles/save.txt");
@@ -597,7 +575,6 @@ public class Model {
 			}
 		}else if(gameState == GameState.DEAD){
 			if(ControllerKeyboard.getInstance().isKeySpacePressed()){
-				System.out.println("Game State is DEAD");
 				restart = true;
 			}
 		}else if(PlayerOne.isInteracting()){
@@ -625,7 +602,6 @@ public class Model {
 								point3f.setX(players.getCentre().getX() - 50);
 								point3f.setY(players.getCentre().getY() - 50);
 								if (checkColliding(point3f, temp, 200)) {
-									System.out.println("Interact");
 									temp.interact(players);
 								}
 							}
@@ -677,6 +653,7 @@ public class Model {
 	private void useItem(){
 		//Add code so that the player is capable of changing Item and then the player item menu whatever
 		if(selectedItem == SelectedItem.SWORD) {
+			PlayerOne.setAttackSwitch(true);
 			swordAttack();
 		}
 		else  if(selectedItem == SelectedItem.FIRE) {
@@ -734,9 +711,9 @@ public class Model {
 
 		EnemiesList = currentLevel.getEnemies();
 
-		System.out.println(pos);
+		ItemsList.clear();
 
-		PlayerOne.setCentre(new Point3f(1000,1000,0));
+		PlayerOne.setCentre(pos);
 
 		if(currentLevel.getLevelName().equals("Fire_Dungeon"))
 			hasFireball=true;
@@ -748,7 +725,7 @@ public class Model {
 			clip = AudioSystem.getClip();
 			AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(levelManager.getCurrentLevel().getBGM());
 			clip.open(audioInputStream);
-			clip.start();
+			clip.loop(Clip.LOOP_CONTINUOUSLY);
 		} catch (Exception e) {
 			System.out.println("Caught Exception: " + e);
 		}
@@ -781,10 +758,6 @@ public class Model {
 
 	public CopyOnWriteArrayList<Collider> getCollisionList() {
 		return CollisionList;
-	}
-
-	public CopyOnWriteArrayList<Door> getDoorListList() {
-		return DoorList;
 	}
 
 	public int getScore() { 

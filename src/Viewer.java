@@ -10,10 +10,8 @@ import Level.Level;
 import Projectile.Fireball;
 import Tiles.TileMap;
 import util.GameObject;
-import util.item.Interactable;
-import util.item.Item;
+import util.item.*;
 import util.Point3f;
-import util.item.NPC;
 
 
 /*
@@ -52,6 +50,7 @@ public class Viewer extends JPanel {
 
 	String dialog="";
 	int dialogPos=0;
+	private boolean nullifyDialog;
 
 	public Viewer(Model World) {
 		this.gameworld=World;
@@ -111,7 +110,7 @@ public class Viewer extends JPanel {
 
 		gameworld.getCollisionList().forEach((temp) ->
 		{
-			drawCollisions((int) temp.getCentre().getX(), (int) temp.getCentre().getY(), (int) temp.getWidth(), (int) temp.getHeight(), temp.getTexture(),g, temp.getDirection());
+			//drawCollisions((int) temp.getCentre().getX(), (int) temp.getCentre().getY(), (int) temp.getWidth(), (int) temp.getHeight(), temp.getTexture(),g, temp.getDirection());
 		});
 	}
 
@@ -154,37 +153,106 @@ public class Viewer extends JPanel {
 	}
 
 	private void drawInteractable(Interactable item, Graphics g) {
-		int currentPositionInAnimation = ((int) ((item.getAnimationTime()%(item.getNumFrames()*20))/20))*32; //slows down animation so every 10 frames we get another frame so every 100ms
 
-		int x = (int)item.getCentre().getX();
-		int y = (int)item.getCentre().getY();
+		if(item.getClass() == Fire.class){
+			//should work okay on OSX and Linux but check if you have issues depending your eclipse install or if your running this without an IDE
 
-		int sx1 = item.getSx1();
-		int sy1 = item.getSy1();
+			Image myImage = item.getImage();
+			int currentPositionInAnimation = (((int) (CurrentAnimationTime%7))*16);
+			//64 by 128
+			int s=48;
+			int t=64;
 
-		int spacing = item.getSpacing();
-		spacing = sx1/16 * spacing;
+			int x = (int) item.getCentre().getX();
+			int y = (int) item.getCentre().getY();
 
-		int size = item.getSize();
+			g.drawImage(myImage, x, y,x+item.getWidth(),y+item.getHeight(), t+currentPositionInAnimation,s,t+currentPositionInAnimation+16,s+16,null);
 
-		String direction = item.getDirection();
-		int offset = 0;
-		if(direction == "down")
-			offset = 0;
-		else if(direction == "left")
-			offset = 32;
-		else if(direction == "right")
-			offset = 64;
-		else
-			offset = 96;
-
-		g.drawImage(item.getImage(), x, y, x + item.getWidth(), y + item.getHeight(), sx1 + currentPositionInAnimation + spacing, sy1 + offset, sx1 + currentPositionInAnimation + size + spacing,  sy1 + size + offset, null);
-
-		if(item.getClass() == NPC.class) {
 			if (item.getDialog() != null) {
 				if (!item.getDialog().equals(dialog)) {
 					dialogPos = 0;
 					dialog = item.getDialog();
+				}
+				nullifyDialog = false;
+			}
+		}else if(item.getClass() == Sword.class){
+			//should work okay on OSX and Linux but check if you have issues depending your eclipse install or if your running this without an IDE
+
+			Image myImage = item.getImage();
+			int currentPositionInAnimation = (((int) (CurrentAnimationTime%50)/10)*16);
+			//64 by 128
+			int s=48;
+			int t=64 + 112;
+
+			int x = (int) item.getCentre().getX();
+			int y = (int) item.getCentre().getY();
+
+			g.drawImage(myImage, x, y,x+item.getWidth(),y+item.getHeight(), t+currentPositionInAnimation,s,t+currentPositionInAnimation+16,s+16,null);
+
+			if (item.getDialog() != null) {
+				if (!item.getDialog().equals(dialog)) {
+					dialogPos = 0;
+					dialog = item.getDialog();
+				}
+				nullifyDialog = false;
+			}
+		}else if(item.getClass() == Life.class){
+			//should work okay on OSX and Linux but check if you have issues depending your eclipse install or if your running this without an IDE
+
+			Image myImage = item.getImage();
+			int currentPositionInAnimation = (((int) (CurrentAnimationTime%50)/10)*16);
+			//64 by 128
+			int s=48;
+			int t=64 + 112;
+
+			int x = (int) item.getCentre().getX();
+			int y = (int) item.getCentre().getY();
+
+			g.drawImage(myImage, x, y,x+item.getWidth(),y+item.getHeight(), t+currentPositionInAnimation,s,t+currentPositionInAnimation+16,s+16,null);
+
+			if (item.getDialog() != null) {
+				if (!item.getDialog().equals(dialog)) {
+					dialogPos = 0;
+					dialog = item.getDialog();
+				}
+				nullifyDialog = false;
+			}
+		}else {
+
+			int currentPositionInAnimation = ((int) ((item.getAnimationTime() % (item.getNumFrames() * 20)) / 20)) * 32; //slows down animation so every 10 frames we get another frame so every 100ms
+
+
+			int x = (int) item.getCentre().getX();
+			int y = (int) item.getCentre().getY();
+
+			int sx1 = item.getSx1();
+			int sy1 = item.getSy1();
+
+			int spacing = item.getSpacing();
+			spacing = sx1 / 16 * spacing;
+
+			int size = item.getSize();
+
+			String direction = item.getDirection();
+			int offset = 0;
+			if (direction == "down")
+				offset = 0;
+			else if (direction == "left")
+				offset = 32;
+			else if (direction == "right")
+				offset = 64;
+			else
+				offset = 96;
+
+			g.drawImage(item.getImage(), x, y, x + item.getWidth(), y + item.getHeight(), sx1 + currentPositionInAnimation + spacing, sy1 + offset, sx1 + currentPositionInAnimation + size + spacing, sy1 + size + offset, null);
+
+			if (item.getClass() == NPC.class) {
+				if (item.getDialog() != null) {
+					if (!item.getDialog().equals(dialog)) {
+						dialogPos = 0;
+						dialog = item.getDialog();
+					}
+					nullifyDialog = false;
 				}
 			}
 		}
@@ -236,16 +304,6 @@ public class Viewer extends JPanel {
 
 		int camera_x = (int) (-playerPosition.getX() + size.getWidth()/2);
 		int camera_y = (int) (-playerPosition.getY() + size.getHeight()/2);
-
-		if(camera_x>0 && tileMap.getMapWidth() == 50)
-			camera_x = 0;
-		else if(camera_x<-size.width/2 - 180 && tileMap.getMapWidth() != 50)
-			camera_x = -size.width/2 - 180;
-
-		if(camera_y>0 && tileMap.getMapWidth() == 50)
-			camera_y = 0;
-		else if(camera_y<-size.height*2 + 225 && tileMap.getMapHeight() != 50)
-			camera_y = -size.height*2 + 225;
 
 		g.translate(camera_x, camera_y);
 
@@ -313,10 +371,13 @@ public class Viewer extends JPanel {
 			drawItems(item, g);
 		});
 
+		nullifyDialog=true;
 		gameworld.getInteractableList().forEach((item) ->
 		{
 			drawInteractable(item, g);
 		});
+		if(nullifyDialog)
+			dialog = null;
 
 		gameworld.getEnemies().forEach((temp) ->
 		{
@@ -331,6 +392,10 @@ public class Viewer extends JPanel {
 		gameworld.getPlayers().forEach((temp) ->
 		{
 			if(temp.isActing()){
+				if(temp.isAttackSwitch()) {
+					CurrentAnimationTime = 0;
+					temp.setAttackSwitch(false);
+				}
 				//.out.println("Performing Action");
 				if(drawAttack((int) temp.getCentre().getX(), (int) temp.getCentre().getY(), (int) temp.getWidth(), (int) temp.getHeight(), temp.getTexture(), g, temp.getDirection()))
 				{
@@ -386,9 +451,11 @@ public class Viewer extends JPanel {
 
 	private void drawGui(int a, int b, GameObject Player, Graphics g){
 		File TextureToLoad = new File("gfx/objects.png");
+		File sword = new File("gfx/sword.png");
 		try {
 
 			Image myImage = ImageIO.read(TextureToLoad);
+			Image mySwordImage = ImageIO.read(sword);
 			int x = 64;
 			int y = 0;
 			int i;
@@ -406,13 +473,9 @@ public class Viewer extends JPanel {
 			g.drawImage(myImage, -a,-b+100,-a+200,-b+300, 0,s,32,s+32,null);
 
 			if(gameworld.getSelectedItem() == Model.SelectedItem.SWORD){
-				s=64;
-				int t=32;
-				g.drawImage(myImage, -a+50,-b+150,-a+150,-b+250, t,s,t+16,s+16,null);
-
-				s=80;
-				t=16;
-				g.drawImage(myImage, -a+70,-b+180,-a+130,-b+220, t,s,t+16,s+16,null);
+				s=0;
+				int t=96;
+				g.drawImage(mySwordImage, -a+50,-b+150,-a+150,-b+250, t,s,t+32,s+32,null);
 			}else if(gameworld.getSelectedItem() == Model.SelectedItem.FIRE){
 				s=48;
 				int t=64;
@@ -430,7 +493,7 @@ public class Viewer extends JPanel {
 
 	private void drawDialog(int a, int b, GameObject Player, Graphics g) {
 		File TextureToLoad = new File("gfx/font.png");
-		if (!dialog.equals("")) {
+		if (dialog != null) {
 			try {
 				Image myImage = ImageIO.read(TextureToLoad);
 
@@ -444,6 +507,7 @@ public class Viewer extends JPanel {
 
 				//https://stackoverflow.com/questions/18249592/how-to-change-font-size-in-drawstring-java
 				g.setFont(new Font("TimesRoman", Font.PLAIN, 50));
+
 
 
 				g.drawString(dialog.substring(0, dialogPos), -a + widthOffset + dialogWidth/20, -b + heightOffset + dialogHeight/4);
@@ -464,8 +528,6 @@ public class Viewer extends JPanel {
 			//64 by 128
 			int s=48;
 			int t=64;
-
-			System.out.println(direction);
 
 			g.drawImage(myImage, x, y,x+width,y+height, t+currentPositionInAnimation,s,t+currentPositionInAnimation+16,s+16,null);
 		} catch (IOException e) {
@@ -500,7 +562,18 @@ public class Viewer extends JPanel {
 		//Lighnting Png from https://opengameart.org/content/animated-spaceships  its 32x32 thats why I know to increament by 32 each time 
 		// Bullets from https://opengameart.org/forumtopic/tatermands-art 
 		// background image from https://www.needpix.com/photo/download/677346/space-stars-nebula-background-galaxy-universe-free-pictures-free-photos-free-images
-		
+
+		//Images used in the Creation of this project include
+		//Zelda-like tileset https://opengameart.org/content/zelda-like-tilesets-and-sprites by ArMM1998
+		//https://pipoya.itch.io/pipoya-free-rpg-character-sprites-32x32
+		//Super Retro World Sprites By Gif
+		//https://gif-superretroworld.itch.io/dungeon-nature-pack
+		//https://gif-superretroworld.itch.io/dungeon-fire-pack
+		//https://gif-superretroworld.itch.io/dungeon-fire-pack
+		//https://gif-superretroworld.itch.io/free-pack
+		//Title Images generated using https://cooltext.com/
+		//Sword Icon
+		//https://opengameart.org/content/32x-sword-icon by 59naga
 	}
 
 
@@ -511,7 +584,7 @@ public class Viewer extends JPanel {
 			Image myImage = ImageIO.read(TextureToLoad);
 			//The spirte is 32x32 pixel wide and 4 of them are placed together so we need to grab a different one each time
 			//remember your training :-) computer science everything starts at 0 so 32 pixels gets us to 31
-			int currentPositionInAnimation = (((int) ((CurrentAnimationTime%4)/1))*32); //slows down animation so every 10 frames we get another frame so every 100ms
+			int currentPositionInAnimation = (((int) ((CurrentAnimationTime%40)/10))*32); //slows down animation so every 10 frames we get another frame so every 100ms
 
 			int offset = 0;
 			if(direction == "down")

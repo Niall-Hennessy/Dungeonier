@@ -39,7 +39,7 @@ public class Point3f {
 	int boundaryY = (int)size.getHeight();
 	private int boundary=900;
 	
-	private Vector3f lastVector;
+	private Vector3f lastVector = new Vector3f(0,0,0);
 
 	// default constructor
 	public Point3f() { 

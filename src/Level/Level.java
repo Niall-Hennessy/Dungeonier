@@ -66,7 +66,7 @@ public class Level {
     }
 
     public CopyOnWriteArrayList<Door> getDoors() {
-        return tileMap.getDoors();
+        return tileMap.getDoors(levelName);
     }
 
     public CopyOnWriteArrayList<Interactable> getInteractables() {
@@ -74,6 +74,6 @@ public class Level {
     }
 
     public CopyOnWriteArrayList<Enemy> getEnemies() {
-        return tileMap.getEnemies();
+        return tileMap.getEnemies(levelName);
     }
 }

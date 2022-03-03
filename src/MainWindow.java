@@ -70,12 +70,12 @@ public class MainWindow {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					startMenuButton.setVisible(false);
-					BackgroundImageForStartMenu.setVisible(false);
+					//BackgroundImageForStartMenu.setVisible(false);
 					canvas.setVisible(true);
 					canvas.addKeyListener(Controller);    //adding the controller to the Canvas
 					canvas.requestFocusInWindow();   // making sure that the Canvas is in focus so keyboard input will be taking in .
 					startGame = true;
-					gameworld.changeLevel("Fire_Dungeon" , new Point3f(1000,1000,0));
+					gameworld.changeLevel("House" , new Point3f(145*5,20   *5,0));
 				}
 			});
 
@@ -83,39 +83,19 @@ public class MainWindow {
 			startMenuButton.setBounds(width / 2 - 170, height / 2 - 40, 340, 80);
 			startMenuButton.setBorder(null);
 			startMenuButton.setContentAreaFilled(false);
+
+
+			BufferedImage title = ImageIO.read(new File("gfx/Title.png"));
+			JLabel jLabel = new JLabel(new ImageIcon(title));
+
+			jLabel.setBounds(width / 2 - 310, height / 3 - 75, 620, 150);
+			jLabel.setBorder(null);
+
+			frame.add(jLabel);
 			frame.add(startMenuButton);
 		}catch (Exception e){
 
 		}
-
-		try {
-			BufferedImage bufferedImage = ImageIO.read(new File("gfx/New_Game.png"));
-			JButton startMenuButton = new JButton(new ImageIcon(bufferedImage));  // start button
-
-			startMenuButton.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-				}
-			});
-
-			//https://stackoverflow.com/questions/4898584/java-using-an-image-as-a-button
-			startMenuButton.setBounds(width / 2 - 170, 2*height / 3 - 40, 340, 80);
-			startMenuButton.setBorder(BorderFactory.createEmptyBorder());
-			startMenuButton.setContentAreaFilled(false);
-			frame.add(startMenuButton);
-		}catch (Exception e){
-
-		}
-	    //loading background image
-        File BackroundToLoad = new File("gfx/meadow.jpg");  //should work okay on OSX and Linux but check if you have issues depending your eclipse install or if your running this without an IDE
-        try {
-                BufferedImage myPicture = ImageIO.read(BackroundToLoad);
-                BackgroundImageForStartMenu = new JLabel(new ImageIcon(myPicture));
-                BackgroundImageForStartMenu.setBounds(0, 0, width, height);
-                frame.add(BackgroundImageForStartMenu);
-        }  catch (IOException e) {
-		    e.printStackTrace();
-        }
 
         frame.setVisible(true);
 	}
@@ -138,7 +118,8 @@ public class MainWindow {
 			}
 
 			if(gameworld.restart()){
-				//Reset the game somehow
+				System.out.println("You know mAterial girl");
+				canvas.setVisible(false);
 			}
 
 			//UNIT test to see if framerate matches

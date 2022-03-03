@@ -30,12 +30,25 @@ public class LevelManager {
         levels.add(town);
         destinations.put("Town", 3);
 
+        Level forest = new Level("Forest", "Package_Nature_Dungeon/atlas_16x", 96, 16, 5, new File("sound/Enchanted Festival Loop.wav"));
+        levels.add(forest);
+        destinations.put("Forest", 4);
+
         Level fireDungeon = new Level("Fire_Dungeon", "Package_Fire_Dungeon/atlas_16x", 64, 16, 3, new File("sound/Enchanted Festival Loop.wav"));
         levels.add(fireDungeon);
-        destinations.put("Fire_Dungeon", 4);
+        destinations.put("Fire_Dungeon", 5);
 
-        //Level cave = new Level("Cave", new File("gfx/cave.png"), new File("sound/Shiny_Depths.wav"));
-        //levels.add(cave);
+        Level natureDungeon = new Level("Nature_Dungeon", "Package_Nature_Dungeon/atlas_16x", 96, 16, 3, new File("sound/Enchanted Festival Loop.wav"));
+        levels.add(natureDungeon);
+        destinations.put("Nature_Dungeon", 6);
+
+        Level waterDungeon = new Level("Water_Dungeon", "Package_Water_Dungeon/atlas_16x", 64, 16, 3, new File("sound/Enchanted Festival Loop.wav"));
+        levels.add(waterDungeon);
+        destinations.put("Water_Dungeon", 7);
+
+        //Sounds used in this game
+        //https://opengameart.org/content/enchanted-festival by Matthew Pablo This sound has not been edited in anyway
+        //https://opengameart.org/content/menu-music by mrpoly
     }
 
     public void changeLevel(int n){

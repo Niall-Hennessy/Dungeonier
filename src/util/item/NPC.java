@@ -16,6 +16,8 @@ public class NPC extends Interactable{
     private File text;
     private FileReader fr;
 
+    private boolean isDialogSet=false;
+
     public NPC(String textureLocation, int width, int height, int sx1, int sy1, int numFrames, Point3f centre) {
         super(textureLocation, width, height, sx1, sy1, numFrames, centre);
     }
@@ -67,6 +69,9 @@ public class NPC extends Interactable{
 
         super.direction = dir;
 
+        if(isDialogSet)
+            return;
+
         boolean readDialog = false;
 
         //https://www.techiedelight.com/read-text-file-using-filereader-java/
@@ -89,7 +94,7 @@ public class NPC extends Interactable{
         }catch (Exception e){}
 
         if(readDialog){
-            dialog = "";
+            dialog = null;
             try {
                 fr.close();
                 fr = new FileReader(text);
@@ -104,9 +109,23 @@ public class NPC extends Interactable{
         return dialog;
     }
 
+    public void setDialog(String text){
+        isDialogSet = true;
+        dialog = text;
+    }
+
     @Override
     public int getAnimationTime(){
         animationTime++;
         return animationTime;
+    }
+
+    public void setText(String textInput){
+        try {
+            this.text = new File("Texts/" + textInput + ".txt");
+            fr = new FileReader(text);
+        }catch (Exception e){
+            System.out.println(e);
+        }
     }
 }

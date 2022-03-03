@@ -38,11 +38,12 @@ public class GameObject {
 	private String blanktexture="res/blankSprite.png";
 	protected String direction;
 	private boolean acting;
-	private int maxHealth = 5;
-	protected int health = 5;
+	private int maxHealth = 3;
+	protected int health = 3;
 	private boolean isDead=false;
 	protected Image image;
 	private boolean isInteracting=false;
+	private boolean attackSwitch=false;
 	
 	public GameObject() {  
 		
@@ -132,6 +133,10 @@ public class GameObject {
 		return this.maxHealth;
 	}
 
+	public void setMaxHealth(int n){
+		maxHealth = n;
+	}
+
 	public boolean isAtMaxHealth(){
 		if(health == maxHealth)
 			return true;
@@ -151,6 +156,14 @@ public class GameObject {
 
 	public Image getImage(){
 		return this.image;
+	}
+
+	public boolean isAttackSwitch() {
+		return attackSwitch;
+	}
+
+	public void setAttackSwitch(boolean attackSwitch) {
+		this.attackSwitch = attackSwitch;
 	}
 }
 
