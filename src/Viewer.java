@@ -501,7 +501,7 @@ public class Viewer extends JPanel {
 				int dialogHeight = 400;
 
 				int widthOffset = size.width / 2 - dialogWidth/2;
-				int heightOffset = size.height / 2;
+				int heightOffset = size.height / 2 + 200;
 
 				g.drawImage(myImage, -a + widthOffset, -b + heightOffset, -a + dialogWidth + widthOffset, -b + dialogHeight + heightOffset, 0, 48, 256, 192, null);
 
