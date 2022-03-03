@@ -137,8 +137,8 @@
   <object id="39" x="336" y="139" width="48.25" height="21.25"/>
   <object id="41" x="96" y="30.75" width="32" height="113.5"/>
   <object id="42" x="16" y="32.25" width="30" height="110.75"/>
-  <object id="43" x="16.5" y="113.75" width="47.5" height="29.25"/>
-  <object id="44" x="79.5" y="112.5" width="24.75" height="31.5"/>
+  <object id="43" x="16.5" y="113.75" width="45.5" height="29.25"/>
+  <object id="44" x="81.1364" y="112.5" width="23.1136" height="31.5"/>
   <object id="45" x="39" y="31.5" width="60.75" height="32.25"/>
  </objectgroup>
  <objectgroup id="6" name="Interactable">

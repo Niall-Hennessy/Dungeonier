@@ -178,7 +178,10 @@ public class Model {
 				for (Enemy enemy : EnemiesList) {
 					if (checkColliding(temp.getCentre(), enemy, 50)) {
 						enemy.setDamaged(true);
-						enemy.reduceHealth(1);
+						if(hasSword)
+							enemy.reduceHealth(2);
+						else
+							enemy.reduceHealth(1);
 
 						Vector3f vector3f = PlayerOne.getCentre().getLastVector();
 						enemy.getCentre().ApplyVector(vector3f);
@@ -267,7 +270,7 @@ public class Model {
 					Point3f point3f = new Point3f(players.getCentre().getX(), players.getCentre().getY(), 0);
 					point3f.setX(point3f.getX()+PlayerOne.getWidth()/4);
 					point3f.setY(point3f.getY()+PlayerOne.getHeight()/4);
-					if(checkColliding(point3f, temp, 75)) {
+					if(checkColliding(point3f, temp, 50)) {
 						Vector3f vector = players.getCentre().getLastVector();
 						vector.setX(-vector.getX());
 						vector.setY(-vector.getY());
@@ -668,18 +671,29 @@ public class Model {
 			int x = (int) PlayerOne.getCentre().getX();
 			int y = (int) PlayerOne.getCentre().getY();
 
+			int width=100;
+			int height=100;
+
 			String direction = PlayerOne.getDirection();
 
-			if (direction.equals("up"))
+			if (direction.equals("up")) {
 				y += -100;
-			else if (direction.equals("down"))
+				height=33;
+			}
+			else if (direction.equals("down")) {
 				y += 100;
-			else if (direction.equals("left"))
+				height=33;
+			}
+			else if (direction.equals("left")) {
 				x += -100;
-			else if (direction.equals("right"))
+				width=33;
+			}
+			else if (direction.equals("right")) {
 				x += 100;
+				width=33;
+			}
 
-			swordAttack = new SwordAttack("res/bullet.png", 100, 100, new Point3f(x, y, 0));
+			swordAttack = new SwordAttack("res/bullet.png", width, height, new Point3f(x, y, 0));
 			swordAttack.setTimer(30);
 		}
 	}

@@ -60,10 +60,10 @@
   <object id="13" x="64.25" y="0.625" width="47.375" height="42.875"/>
   <object id="14" x="-0.25" y="-1" width="31.625" height="48.25"/>
   <object id="15" x="16.5" y="81" width="46.5" height="45.125"/>
-  <object id="16" x="64.75" y="86.625" width="14.875" height="31.625"/>
+  <object id="16" x="64.75" y="86.625" width="15.9659" height="31.625"/>
  </objectgroup>
  <objectgroup id="6" name="Interactable">
-  <object id="17" type="NPC/Male/Male 12-1" x="106.545" y="89.6364">
+  <object id="17" type="NPC/Male/Male 12-1" x="122.727" y="89.2728">
    <properties>
     <property name="Text" value="Father"/>
    </properties>

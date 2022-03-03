@@ -75,7 +75,7 @@ public class MainWindow {
 					canvas.addKeyListener(Controller);    //adding the controller to the Canvas
 					canvas.requestFocusInWindow();   // making sure that the Canvas is in focus so keyboard input will be taking in .
 					startGame = true;
-					gameworld.changeLevel("House" , new Point3f(145*5,20   *5,0));
+					gameworld.changeLevel("House" , new Point3f(140*5,20   *5,0));
 				}
 			});
 
@@ -116,12 +116,6 @@ public class MainWindow {
 			if(startGame){
 			    gameloop();
 			}
-
-			if(gameworld.restart()){
-				System.out.println("You know mAterial girl");
-				canvas.setVisible(false);
-			}
-
 			//UNIT test to see if framerate matches
 			//UnitTests.CheckFrameRate(System.currentTimeMillis(),FrameCheck, TargetFPS);
 			  
